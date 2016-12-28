@@ -1,0 +1,4 @@
+# premake output
+build/
+
+*.log

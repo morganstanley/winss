@@ -2,11 +2,11 @@
 #define TEST_MOCK_PIPE_INSTANCE_HPP_
 
 #include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/pipe_instance.hpp>
 #include <cstdlib>
 #include <vector>
 #include <utility>
+#include "gmock/gmock.h"
+#include "winss/pipe_instance.hpp"
 
 using ::testing::_;
 using ::testing::NiceMock;

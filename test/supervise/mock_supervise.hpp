@@ -1,13 +1,11 @@
 #ifndef TEST_SUPERVISE_MOCK_SUPERVISE_HPP_
 #define TEST_SUPERVISE_MOCK_SUPERVISE_HPP_
 
-#include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/not_owning_ptr.hpp>
-#include <winss/wait_multiplexer.hpp>
-#include <winss/handle_wrapper.hpp>
-#include <winss/supervise/supervise.hpp>
 #include <filesystem>
+#include "gmock/gmock.h"
+#include "winss/not_owning_ptr.hpp"
+#include "winss/wait_multiplexer.hpp"
+#include "winss/supervise/supervise.hpp"
 
 namespace fs = std::experimental::filesystem;
 

@@ -1,10 +1,8 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/svscan/service.hpp>
 #include <filesystem>
-#include <string>
-#include <utility>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/svscan/service.hpp"
 #include "../mock_interface.hpp"
 #include "../mock_windows_interface.hpp"
 #include "../mock_filesystem_interface.hpp"

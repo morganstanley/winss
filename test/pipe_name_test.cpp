@@ -1,8 +1,7 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <winss/pipe_name.hpp>
 #include <string>
-#include <utility>
+#include "gtest/gtest.h"
+#include "winss/winss.hpp"
+#include "winss/pipe_name.hpp"
 
 namespace winss {
 class PipeNameTest : public testing::Test {

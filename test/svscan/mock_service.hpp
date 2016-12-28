@@ -1,13 +1,11 @@
 #ifndef TEST_SVSCAN_MOCK_SERVICE_HPP_
 #define TEST_SVSCAN_MOCK_SERVICE_HPP_
 
-#include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/svscan/service.hpp>
 #include <filesystem>
-#include <string>
 #include <utility>
-#include "mock_service_process.hpp"
+#include <string>
+#include "gmock/gmock.h"
+#include "winss/svscan/service.hpp"
 
 namespace fs = std::experimental::filesystem;
 

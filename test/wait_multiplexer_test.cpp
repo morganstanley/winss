@@ -1,12 +1,12 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/wait_multiplexer.hpp>
-#include <winss/handle_wrapper.hpp>
-#include <winss/event_wrapper.hpp>
 #include <chrono>
 #include <thread>
 #include <functional>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/wait_multiplexer.hpp"
+#include "winss/handle_wrapper.hpp"
+#include "winss/event_wrapper.hpp"
 #include "mock_interface.hpp"
 #include "mock_windows_interface.hpp"
 

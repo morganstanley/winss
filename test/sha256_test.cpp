@@ -1,10 +1,11 @@
-#include <winss/winss.hpp>
+#include <windows.h>
 #include <wincrypt.h>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/sha256.hpp>
 #include <algorithm>
 #include <string>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include <winss/sha256.hpp>
 #include "mock_interface.hpp"
 #include "mock_windows_interface.hpp"
 

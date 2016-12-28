@@ -1,9 +1,9 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <winss/utils.hpp>
 #include <string>
 #include <chrono>
 #include <map>
+#include "gtest/gtest.h"
+#include "winss/winss.hpp"
+#include "winss/utils.hpp"
 
 namespace winss {
 class UtilsTest : public testing::Test {

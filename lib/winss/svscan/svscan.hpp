@@ -2,19 +2,19 @@
 #define LIB_WINSS_SVSCAN_SVSCAN_HPP_
 
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
-#include <winss/windows_interface.hpp>
-#include <winss/filesystem_interface.hpp>
-#include <winss/not_owning_ptr.hpp>
-#include <winss/handle_wrapper.hpp>
-#include <winss/wait_multiplexer.hpp>
-#include <winss/path_mutex.hpp>
-#include <winss/process.hpp>
-#include <winss/utils.hpp>
 #include <filesystem>
-#include <string>
+#include <functional>
 #include <utility>
 #include <vector>
+#include <string>
+#include "easylogging/easylogging++.hpp"
+#include "../windows_interface.hpp"
+#include "../filesystem_interface.hpp"
+#include "../not_owning_ptr.hpp"
+#include "../wait_multiplexer.hpp"
+#include "../path_mutex.hpp"
+#include "../process.hpp"
+#include "../utils.hpp"
 #include "service.hpp"
 
 namespace fs = std::experimental::filesystem;

@@ -1,9 +1,9 @@
 #ifndef LIB_WINSS_SUPERVISE_STATE_LISTENER_HPP_
 #define LIB_WINSS_SUPERVISE_STATE_LISTENER_HPP_
 
-#include <winss/control.hpp>
 #include <vector>
 #include <queue>
+#include "../control.hpp"
 #include "state_file.hpp"
 #include "supervise.hpp"
 

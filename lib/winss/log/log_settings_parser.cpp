@@ -1,9 +1,9 @@
 #include "log_settings_parser.hpp"
-#include <easylogging/easylogging++.hpp>
-#include <winss/filesystem_interface.hpp>
 #include <filesystem>
 #include <vector>
 #include <string>
+#include "easylogging/easylogging++.hpp"
+#include "../filesystem_interface.hpp"
 #include "log_settings.hpp"
 
 namespace fs = std::experimental::filesystem;

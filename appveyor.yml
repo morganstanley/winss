@@ -1,0 +1,93 @@
+os: Visual Studio 2015
+
+init:
+- ps: |
+    function Get-BuildVersion
+    {
+      if ($env:APPVEYOR_REPO_TAG -eq "true" -and $env:APPVEYOR_REPO_TAG_NAME)
+      {
+        $tag_name = $env:APPVEYOR_REPO_TAG_NAME
+        if ($tag_name -match '([0-9]+[\.-][0-9]+[\.-][0-9]+[\.-][0-9]+)')
+        {
+            return $matches[1]  
+        }
+      }
+
+      $build_number = $env:APPVEYOR_BUILD_NUMBER
+      if (!$build_number)
+      {
+        $build_number = 0
+      }
+
+      return "1.0.0.$build_number"
+    }
+
+    Update-AppveyorBuild -Version $(Get-BuildVersion)
+
+configuration:
+- Debug
+- Release
+
+environment:
+  PATH: '%ProgramFiles%\OpenCppCoverage;%SystemDrive%\Python27;C:\Python27\Scripts;%PATH%'
+
+install:
+- ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha10/premake-5.0.0-alpha10-windows.zip' 'premake.zip'
+- 7z x premake.zip
+- cinst opencppcoverage
+- pip install cpplint
+
+before_build:
+# Set env vars expected in premake
+- set GIT_COMMIT=%APPVEYOR_REPO_COMMIT%
+- set BUILD_VERSION=%APPVEYOR_BUILD_VERSION%
+- set
+# Create Visual Sudio solution
+- premake5.exe vs2015
+# Restore solution NuGet packages before build
+- nuget restore build\WindowsSupervisionSuite.sln
+
+build:
+  project: build\WindowsSupervisionSuite.sln
+
+test_script:
+- ps: |
+    if ($env:CONFIGURATION -eq "Debug")
+    {
+      & .\tools\Run-Tests.ps1
+      if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
+      else
+      {
+         $wc = New-Object 'System.Net.WebClient'
+         $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\build\testresults.xml))
+      }
+
+      & .\tools\Run-Lint.ps1
+      if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
+    }
+
+artifacts:
+- path: build\bin\x64\Debug
+  name: debug
+  type: zip
+- path: build\bin\x64\Release
+  name: release
+  type: zip
+- path: build\testresults.xml
+  name: testresults
+- path: build\coverage.xml
+  name: coverage
+- path: build\lint.txt
+  name: lint
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: mSvsAjNV2gCX/XNeDFuwXYc6w7BIZo4eY6sjS9hZnlGnpYPproDWjzirT5z86znF
+  artifact: release
+  draft: true
+  prerelease: false
+  on:
+    branch: master
+    appveyor_repo_tag: true
+    Configuration: Release

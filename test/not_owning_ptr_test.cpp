@@ -1,8 +1,8 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/not_owning_ptr.hpp>
 #include <string>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/not_owning_ptr.hpp"
 
 using ::testing::_;
 using ::testing::NiceMock;

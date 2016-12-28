@@ -1,5 +1,4 @@
 #include "control.hpp"
-#include <string>
 #include <vector>
 #include <set>
 #include "pipe_client.hpp"

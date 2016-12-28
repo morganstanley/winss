@@ -1,11 +1,10 @@
 #ifndef TEST_MOCK_PATH_MUTEX_HPP_
 #define TEST_MOCK_PATH_MUTEX_HPP_
 
-#include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/path_mutex.hpp>
 #include <filesystem>
 #include <string>
+#include "gmock/gmock.h"
+#include "winss/path_mutex.hpp"
 
 namespace fs = std::experimental::filesystem;
 

@@ -1,11 +1,9 @@
 #ifndef TEST_MOCK_PIPE_CLIENT_HPP_
 #define TEST_MOCK_PIPE_CLIENT_HPP_
 
-#include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/pipe_client.hpp>
-#include <winss/handle_wrapper.hpp>
 #include <vector>
+#include "gmock/gmock.h"
+#include "winss/pipe_client.hpp"
 
 using ::testing::_;
 

@@ -1,8 +1,8 @@
 #ifndef LIB_WINSS_UTILS_HPP_
 #define LIB_WINSS_UTILS_HPP_
 
-#include <string>
 #include <chrono>
+#include <string>
 #include <map>
 #include "case_ignore.hpp"
 

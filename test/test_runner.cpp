@@ -1,6 +1,6 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <easylogging/easylogging++.hpp>
+#include "gtest/gtest.h"
+#include "winss/winss.hpp"
+#include "easylogging/easylogging++.hpp"
 
 INITIALIZE_EASYLOGGINGPP
 

@@ -2,9 +2,9 @@
 #define LIB_WINSS_PIPE_CLIENT_HPP_
 
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
 #include <functional>
 #include <vector>
+#include "easylogging/easylogging++.hpp"
 #include "wait_multiplexer.hpp"
 #include "pipe_name.hpp"
 #include "handle_wrapper.hpp"

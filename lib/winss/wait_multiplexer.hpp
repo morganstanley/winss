@@ -2,9 +2,9 @@
 #define LIB_WINSS_WAIT_MULTIPLEXER_HPP_
 
 #include <windows.h>
-#include <string>
 #include <chrono>
 #include <vector>
+#include <string>
 #include <map>
 #include <set>
 #include <functional>

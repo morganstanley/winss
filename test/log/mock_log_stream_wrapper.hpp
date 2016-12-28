@@ -1,11 +1,10 @@
 #ifndef TEST_LOG_MOCK_LOG_STREAM_WRAPPER_HPP_
 #define TEST_LOG_MOCK_LOG_STREAM_WRAPPER_HPP_
 
-#include <gmock/gmock.h>
-#include <winss/log/log_stream_wrapper.hpp>
 #include <filesystem>
-#include <fstream>
 #include <string>
+#include "gmock/gmock.h"
+#include "winss/log/log_stream_wrapper.hpp"
 
 namespace fs = std::experimental::filesystem;
 

@@ -1,9 +1,9 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/pipe_instance.hpp>
 #include <vector>
 #include <utility>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/pipe_instance.hpp"
 #include "mock_interface.hpp"
 #include "mock_windows_interface.hpp"
 #include "mock_pipe_name.hpp"

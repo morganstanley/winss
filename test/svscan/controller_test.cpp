@@ -1,8 +1,8 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/svscan/controller.hpp>
-#include <winss/not_owning_ptr.hpp>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/svscan/controller.hpp"
+#include "winss/not_owning_ptr.hpp"
 #include "../mock_wait_multiplexer.hpp"
 #include "../mock_pipe_server.hpp"
 #include "../mock_pipe_name.hpp"

@@ -2,10 +2,10 @@
 #define LIB_WINSS_PIPE_SERVER_HPP_
 
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
 #include <vector>
 #include <utility>
 #include <map>
+#include "easylogging/easylogging++.hpp"
 #include "wait_multiplexer.hpp"
 #include "pipe_name.hpp"
 #include "pipe_instance.hpp"

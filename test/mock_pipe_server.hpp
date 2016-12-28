@@ -1,11 +1,9 @@
 #ifndef TEST_MOCK_PIPE_SERVER_HPP_
 #define TEST_MOCK_PIPE_SERVER_HPP_
 
-#include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/pipe_server.hpp>
-#include <winss/handle_wrapper.hpp>
 #include <vector>
+#include "gmock/gmock.h"
+#include "winss/pipe_server.hpp"
 
 using ::testing::_;
 

@@ -2,21 +2,20 @@
 #define LIB_WINSS_SUPERVISE_SUPERVISE_HPP_
 
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
-#include <winss/handle_wrapper.hpp>
-#include <winss/windows_interface.hpp>
-#include <winss/filesystem_interface.hpp>
-#include <winss/wait_multiplexer.hpp>
-#include <winss/not_owning_ptr.hpp>
-#include <winss/environment.hpp>
-#include <winss/path_mutex.hpp>
-#include <winss/process.hpp>
-#include <winss/utils.hpp>
 #include <filesystem>
 #include <vector>
 #include <chrono>
 #include <string>
-#include <set>
+#include "easylogging/easylogging++.hpp"
+#include "../handle_wrapper.hpp"
+#include "../windows_interface.hpp"
+#include "../filesystem_interface.hpp"
+#include "../wait_multiplexer.hpp"
+#include "../not_owning_ptr.hpp"
+#include "../environment.hpp"
+#include "../path_mutex.hpp"
+#include "../process.hpp"
+#include "../utils.hpp"
 
 namespace fs = std::experimental::filesystem;
 

@@ -1,8 +1,8 @@
 #include "log_stream_wrapper.hpp"
-#include <easylogging/easylogging++.hpp>
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include "easylogging/easylogging++.hpp"
 
 namespace fs = std::experimental::filesystem;
 

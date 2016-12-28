@@ -1,10 +1,9 @@
 #include "sha256.hpp"
 #include <windows.h>
 #include <wincrypt.h>
-#include <winss/windows_interface.hpp>
-#include <easylogging/easylogging++.hpp>
-#include <string>
 #include <vector>
+#include "winss/windows_interface.hpp"
+#include "easylogging/easylogging++.hpp"
 
 class ScopedHCRYPTPROV {
  private:

@@ -1,9 +1,8 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/supervise/state_file.hpp>
-#include <winss/supervise/supervise.hpp>
-#include <string>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/supervise/state_file.hpp"
+#include "winss/supervise/supervise.hpp"
 #include "../mock_interface.hpp"
 #include "../mock_filesystem_interface.hpp"
 
