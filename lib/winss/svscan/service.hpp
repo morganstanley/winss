@@ -2,14 +2,13 @@
 #define LIB_WINSS_SVSCAN_SERVICE_HPP_
 
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
-#include <winss/windows_interface.hpp>
-#include <winss/filesystem_interface.hpp>
-#include <winss/handle_wrapper.hpp>
-#include <winss/process.hpp>
 #include <filesystem>
-#include <string>
 #include <utility>
+#include <string>
+#include "easylogging/easylogging++.hpp"
+#include "../windows_interface.hpp"
+#include "../filesystem_interface.hpp"
+#include "../handle_wrapper.hpp"
 #include "service_process.hpp"
 
 namespace fs = std::experimental::filesystem;

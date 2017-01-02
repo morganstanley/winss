@@ -1,11 +1,10 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/svscan/svscan.hpp>
-#include <winss/not_owning_ptr.hpp>
 #include <filesystem>
 #include <vector>
-#include <utility>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/svscan/svscan.hpp"
+#include "winss/not_owning_ptr.hpp"
 #include "../mock_interface.hpp"
 #include "../mock_filesystem_interface.hpp"
 #include "../mock_wait_multiplexer.hpp"

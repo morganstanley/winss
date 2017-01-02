@@ -1,9 +1,9 @@
 #ifndef LIB_WINSS_SVSCAN_CONTROLLER_HPP_
 #define LIB_WINSS_SVSCAN_CONTROLLER_HPP_
 
-#include <winss/not_owning_ptr.hpp>
-#include <winss/pipe_server.hpp>
 #include <vector>
+#include "../not_owning_ptr.hpp"
+#include "../pipe_server.hpp"
 #include "svscan.hpp"
 
 namespace winss {

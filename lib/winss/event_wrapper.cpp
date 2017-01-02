@@ -1,5 +1,4 @@
 #include "event_wrapper.hpp"
-#include <windows.h>
 #include "windows_interface.hpp"
 #include "handle_wrapper.hpp"
 

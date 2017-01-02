@@ -2,12 +2,10 @@
 #include <windows.h>
 #include <sstream>
 #include <iomanip>
-#include <string>
 #include <memory>
 #include <vector>
-#include <iterator>
 #include <chrono>
-#include <ctime>
+#include <string>
 #include <map>
 #include "windows_interface.hpp"
 

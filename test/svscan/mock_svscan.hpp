@@ -2,12 +2,11 @@
 #define TEST_SVSCAN_MOCK_SVSCAN_HPP_
 
 #include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/svscan/svscan.hpp>
-#include <winss/not_owning_ptr.hpp>
-#include <winss/wait_multiplexer.hpp>
 #include <filesystem>
-#include "../mock_path_mutex.hpp"
+#include "gmock/gmock.h"
+#include "winss/svscan/svscan.hpp"
+#include "winss/not_owning_ptr.hpp"
+#include "winss/wait_multiplexer.hpp"
 #include "mock_service.hpp"
 
 namespace fs = std::experimental::filesystem;

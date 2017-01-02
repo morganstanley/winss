@@ -1,7 +1,7 @@
 #include "ctrl_handler.hpp"
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
-#include <winss/event_wrapper.hpp>
+#include "easylogging/easylogging++.hpp"
+#include "event_wrapper.hpp"
 #include "windows_interface.hpp"
 
 winss::EventWrapper& winss::GetCloseEvent() {

@@ -1,12 +1,11 @@
 #ifndef TEST_SUPERVISE_MOCK_STATE_FILE_HPP_
 #define TEST_SUPERVISE_MOCK_STATE_FILE_HPP_
 
-#include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/supervise/state_file.hpp>
-#include <winss/supervise/supervise.hpp>
 #include <filesystem>
 #include <string>
+#include "gmock/gmock.h"
+#include "winss/supervise/state_file.hpp"
+#include "winss/supervise/supervise.hpp"
 
 namespace fs = std::experimental::filesystem;
 

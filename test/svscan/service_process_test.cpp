@@ -1,9 +1,8 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/svscan/service_process.hpp>
 #include <filesystem>
-#include <utility>
+#include "winss/winss.hpp"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/svscan/service_process.hpp"
 #include "../mock_process.hpp"
 
 namespace fs = std::experimental::filesystem;

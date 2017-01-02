@@ -1,13 +1,13 @@
 #include "wait_multiplexer.hpp"
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
-#include <string>
 #include <chrono>
 #include <vector>
+#include <string>
 #include <map>
 #include <set>
 #include <utility>
 #include <functional>
+#include "easylogging/easylogging++.hpp"
 #include "windows_interface.hpp"
 #include "handle_wrapper.hpp"
 #include "event_wrapper.hpp"

@@ -1,8 +1,7 @@
 #include "pipe_name.hpp"
-#include <easylogging/easylogging++.hpp>
 #include <filesystem>
-#include <utility>
 #include <string>
+#include "easylogging/easylogging++.hpp"
 #include "filesystem_interface.hpp"
 #include "sha256.hpp"
 

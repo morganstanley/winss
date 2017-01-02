@@ -1,10 +1,10 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/path_mutex.hpp>
 #include <string>
 #include <thread>
 #include <functional>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/path_mutex.hpp"
 #include "mock_interface.hpp"
 #include "mock_windows_interface.hpp"
 
@@ -47,7 +47,7 @@ TEST_F(PathMutexTest, MutlipleInstances) {
     windows->SetupDefaults();
 
     EXPECT_CALL(*windows, ReleaseMutex(_)).Times(1);
-    EXPECT_CALL(*windows, CloseHandle(_)).Times(3);
+    EXPECT_CALL(*windows, CloseHandle(_)).Times(2);
 
     winss::PathMutex mutex1("does_not_exit", "test3");
     winss::PathMutex mutex2("does_not_exit", "test3");
@@ -68,10 +68,6 @@ TEST_F(PathMutexTest, MutlipleInstances) {
     mt1.join();
     mt2.join();
 
-    EXPECT_TRUE(mutex1.HasLock());
-    EXPECT_FALSE(mutex2.HasLock());
-
-    EXPECT_TRUE(mutex1.CanLock());
-    EXPECT_FALSE(mutex2.CanLock());
+    EXPECT_NE(mutex1.HasLock(), mutex2.HasLock());
 }
 }  // namespace winss

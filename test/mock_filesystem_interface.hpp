@@ -1,12 +1,11 @@
 #ifndef TEST_MOCK_FILESYSTEM_INTERFACE_HPP_
 #define TEST_MOCK_FILESYSTEM_INTERFACE_HPP_
 
-#include <gmock/gmock.h>
-#include <winss/filesystem_interface.hpp>
 #include <filesystem>
 #include <string>
 #include <vector>
-#include <memory>
+#include "gmock/gmock.h"
+#include "winss/filesystem_interface.hpp"
 
 namespace fs = std::experimental::filesystem;
 

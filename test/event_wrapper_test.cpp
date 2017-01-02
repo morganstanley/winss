@@ -1,9 +1,9 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/event_wrapper.hpp>
 #include <thread>
 #include <functional>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/event_wrapper.hpp"
 #include "mock_interface.hpp"
 #include "mock_windows_interface.hpp"
 

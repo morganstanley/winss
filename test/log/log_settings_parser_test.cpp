@@ -1,8 +1,8 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/log/log_settings_parser.hpp>
 #include <filesystem>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/log/log_settings_parser.hpp"
 #include "../mock_interface.hpp"
 #include "../mock_filesystem_interface.hpp"
 

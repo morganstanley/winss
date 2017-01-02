@@ -1,9 +1,8 @@
 #ifndef TEST_MOCK_INTERFACE_HPP_
 #define TEST_MOCK_INTERFACE_HPP_
 
-#include <windows.h>
-#include <gmock/gmock.h>
 #include <memory>
+#include "gmock/gmock.h"
 
 using ::testing::NiceMock;
 

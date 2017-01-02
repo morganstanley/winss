@@ -1,7 +1,7 @@
 #include "handle_wrapper.hpp"
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
 #include <vector>
+#include "easylogging/easylogging++.hpp"
 #include "windows_interface.hpp"
 
 winss::HandleWrapper::HandleWrapper() :

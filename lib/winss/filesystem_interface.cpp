@@ -1,10 +1,10 @@
 #include "filesystem_interface.hpp"
-#include <easylogging/easylogging++.hpp>
 #include <filesystem>
 #include <string>
 #include <fstream>
 #include <vector>
 #include <memory>
+#include "easylogging/easylogging++.hpp"
 
 namespace fs = std::experimental::filesystem;
 

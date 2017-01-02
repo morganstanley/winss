@@ -1,10 +1,9 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/not_owning_ptr.hpp>
-#include <winss/pipe_client.hpp>
-#include <winss/handle_wrapper.hpp>
 #include <vector>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/not_owning_ptr.hpp"
+#include "winss/pipe_client.hpp"
 #include "mock_interface.hpp"
 #include "mock_windows_interface.hpp"
 #include "mock_wait_multiplexer.hpp"

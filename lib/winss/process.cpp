@@ -1,8 +1,7 @@
 #include "process.hpp"
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
-#include <string>
 #include <vector>
+#include "easylogging/easylogging++.hpp"
 #include "windows_interface.hpp"
 #include "environment.hpp"
 

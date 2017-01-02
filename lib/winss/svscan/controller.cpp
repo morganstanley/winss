@@ -1,7 +1,7 @@
 #include "controller.hpp"
-#include <winss/not_owning_ptr.hpp>
-#include <winss/pipe_server.hpp>
 #include <vector>
+#include "../not_owning_ptr.hpp"
+#include "../pipe_server.hpp"
 #include "svscan.hpp"
 
 const char winss::SvScanController::kAlarm = 'a';

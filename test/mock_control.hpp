@@ -1,10 +1,9 @@
 #ifndef TEST_MOCK_CONTROL_HPP_
 #define TEST_MOCK_CONTROL_HPP_
 
-#include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/control.hpp>
 #include <vector>
+#include "gmock/gmock.h"
+#include "winss/control.hpp"
 
 namespace winss {
 class MockInboundControlItemListener

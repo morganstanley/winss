@@ -2,8 +2,8 @@
 #define LIB_WINSS_HANDLE_WRAPPER_HPP_
 
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
 #include <vector>
+#include "easylogging/easylogging++.hpp"
 
 namespace winss {
 enum WaitResultState {

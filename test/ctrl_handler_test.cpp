@@ -1,8 +1,8 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/ctrl_handler.hpp>
-#include <winss/windows_interface.hpp>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/ctrl_handler.hpp"
+#include "winss/windows_interface.hpp"
 #include "mock_interface.hpp"
 #include "mock_windows_interface.hpp"
 

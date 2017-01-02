@@ -1,10 +1,10 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/supervise/state_listener.hpp>
-#include <winss/supervise/supervise.hpp>
-#include <winss/supervise/controller.hpp>
 #include <functional>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/supervise/state_listener.hpp"
+#include "winss/supervise/supervise.hpp"
+#include "winss/supervise/controller.hpp"
 #include "mock_state_file.hpp"
 
 using ::testing::_;

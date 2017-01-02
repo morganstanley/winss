@@ -1,9 +1,8 @@
-#include <winss/winss.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-#include <winss/handle_wrapper.hpp>
 #include <vector>
-#include <utility>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "winss/winss.hpp"
+#include "winss/handle_wrapper.hpp"
 #include "mock_interface.hpp"
 #include "mock_windows_interface.hpp"
 

@@ -1,10 +1,9 @@
 #include "pipe_instance.hpp"
 #include <windows.h>
-#include <easylogging/easylogging++.hpp>
 #include <vector>
 #include <queue>
 #include <utility>
-#include <string>
+#include "easylogging/easylogging++.hpp"
 #include "windows_interface.hpp"
 #include "handle_wrapper.hpp"
 #include "pipe_name.hpp"

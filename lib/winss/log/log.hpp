@@ -1,17 +1,17 @@
 #ifndef LIB_WINSS_LOG_LOG_HPP_
 #define LIB_WINSS_LOG_LOG_HPP_
 
-#include <easylogging/easylogging++.hpp>
-#include <winss/filesystem_interface.hpp>
-#include <winss/not_owning_ptr.hpp>
-#include <winss/path_mutex.hpp>
 #include <filesystem>
 #include <algorithm>
 #include <vector>
 #include <regex>
-#include <string>
 #include <chrono>
 #include <utility>
+#include <string>
+#include "easylogging/easylogging++.hpp"
+#include "../filesystem_interface.hpp"
+#include "../not_owning_ptr.hpp"
+#include "../path_mutex.hpp"
 #include "log_settings.hpp"
 #include "log_stream_wrapper.hpp"
 

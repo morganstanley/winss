@@ -1,14 +1,13 @@
-#include <winss/winss.hpp>
-#include <optionparser/optionparser.hpp>
-#include <easylogging/easylogging++.hpp>
-#include <winss/ctrl_handler.hpp>
-#include <winss/not_owning_ptr.hpp>
-#include <winss/log/log_settings.hpp>
-#include <winss/log/log_settings_parser.hpp>
-#include <winss/log/log.hpp>
 #include <iostream>
 #include <vector>
-#include <string>
+#include "winss/winss.hpp"
+#include "optionparser/optionparser.hpp"
+#include "easylogging/easylogging++.hpp"
+#include "winss/ctrl_handler.hpp"
+#include "winss/not_owning_ptr.hpp"
+#include "winss/log/log_settings.hpp"
+#include "winss/log/log_settings_parser.hpp"
+#include "winss/log/log.hpp"
 #include "resource/resource.h"
 
 INITIALIZE_EASYLOGGINGPP

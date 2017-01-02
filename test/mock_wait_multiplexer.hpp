@@ -2,11 +2,11 @@
 #define TEST_MOCK_WAIT_MULTIPLEXER_HPP_
 
 #include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/wait_multiplexer.hpp>
 #include <functional>
-#include <string>
 #include <vector>
+#include <string>
+#include "gmock/gmock.h"
+#include "winss/wait_multiplexer.hpp"
 
 using ::testing::_;
 using ::testing::Invoke;

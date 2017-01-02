@@ -1,8 +1,8 @@
 #include "controller.hpp"
-#include <easylogging/easylogging++.hpp>
-#include <winss/not_owning_ptr.hpp>
-#include <winss/pipe_server.hpp>
 #include <vector>
+#include "easylogging/easylogging++.hpp"
+#include "../not_owning_ptr.hpp"
+#include "../pipe_server.hpp"
 #include "supervise.hpp"
 
 const char winss::SuperviseController::kSvcUp = 'u';

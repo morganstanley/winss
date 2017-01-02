@@ -1,10 +1,9 @@
 #ifndef TEST_MOCK_ENVIRONMENT_HPP_
 #define TEST_MOCK_ENVIRONMENT_HPP_
 
-#include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/environment.hpp>
 #include <vector>
+#include "gmock/gmock.h"
+#include "winss/environment.hpp"
 
 namespace winss {
 class MockEnviornment : public winss::Environment {

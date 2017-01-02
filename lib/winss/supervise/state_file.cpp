@@ -1,15 +1,13 @@
 #define NOMINMAX
 #include "state_file.hpp"
-#include <easylogging/easylogging++.hpp>
-#include <winss/filesystem_interface.hpp>
-#include <winss/utils.hpp>
-#include <json/json.hpp>
 #include <filesystem>
-#include <string>
-#include <iostream>
-#include <fstream>
 #include <sstream>
 #include <chrono>
+#include <string>
+#include "easylogging/easylogging++.hpp"
+#include "../filesystem_interface.hpp"
+#include "../utils.hpp"
+#include "json/json.hpp"
 #include "supervise.hpp"
 
 namespace fs = std::experimental::filesystem;

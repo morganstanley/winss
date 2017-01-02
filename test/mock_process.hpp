@@ -2,10 +2,10 @@
 #define TEST_MOCK_PROCESS_HPP_
 
 #include <windows.h>
-#include <gmock/gmock.h>
-#include <winss/process.hpp>
-#include <winss/handle_wrapper.hpp>
 #include <utility>
+#include "gmock/gmock.h"
+#include "winss/process.hpp"
+#include "winss/handle_wrapper.hpp"
 
 using ::testing::NiceMock;
 

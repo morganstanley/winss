@@ -4,8 +4,8 @@
 #include <windows.h>
 #include <wincrypt.h>
 #include <rpc.h>
-#include <gmock/gmock.h>
-#include <winss/windows_interface.hpp>
+#include "gmock/gmock.h"
+#include "winss/windows_interface.hpp"
 
 using ::testing::_;
 using ::testing::Invoke;
