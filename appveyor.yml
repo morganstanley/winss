@@ -41,7 +41,6 @@ before_build:
 # Set env vars expected in premake
 - set GIT_COMMIT=%APPVEYOR_REPO_COMMIT%
 - set BUILD_VERSION=%APPVEYOR_BUILD_VERSION%
-- set
 # Create Visual Sudio solution
 - premake5.exe vs2015
 # Restore solution NuGet packages before build

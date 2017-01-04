@@ -15,7 +15,7 @@ with the project.
    includes new environment variables, exposed ports, useful file locations and
    container parameters.
 3. Ensure you have signed the Contributor License Agreement availible from
-   <treadmill-core@morganstanley.com>
+   treadmill-core [at] morganstanley.com
 4. You may merge the Pull Request in once the build has passed and you have the
    sign-off of one other developer, or if you do not have permission to do that,
    you may request the reviewer to merge it for you.
