@@ -4,7 +4,7 @@
 its counterpart [S6](http://skarnet.org/software/s6/) as possible using native
 Windows features. It's core function is to allow process supervision but it
 provides tools to supervise a collection of processes, handle logging, and
-also administeration.
+also administration.
 
 Using this framework it is simple to handle complex scenarios with little code
 such as  adding/removing services and starting/stopping services in a particular
