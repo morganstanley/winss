@@ -84,9 +84,9 @@ deploy:
   auth_token:
     secure: mSvsAjNV2gCX/XNeDFuwXYc6w7BIZo4eY6sjS9hZnlGnpYPproDWjzirT5z86znF
   artifact: release
-  draft: true
+  draft: false
   prerelease: false
   on:
-    branch: master
+    branch: /^ms\\/
     appveyor_repo_tag: true
     Configuration: Release
