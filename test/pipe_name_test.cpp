@@ -13,11 +13,11 @@ TEST_F(PipeNameTest, Name) {
 
     const std::string& name1 = pipe_name1.Get();
     EXPECT_EQ(0, name1.find("\\\\.\\pipe\\"));
-    EXPECT_GT(name1.length(), 7);
+    EXPECT_GT(name1.length(), (size_t) 7);
 
     const std::string& name2 = pipe_name2.Get();
     EXPECT_EQ(0, name2.find("\\\\.\\pipe\\"));
-    EXPECT_GT(name2.find("_pipe_name2"), 0);
+    EXPECT_GT(name2.find("_pipe_name2"), (size_t) 0);
 }
 
 TEST_F(PipeNameTest, Append) {

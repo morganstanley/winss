@@ -53,8 +53,8 @@ Details on the command line options can be found [here](https://github.com/googl
 
 ### With code coverage
 
-To run with code code coverage then use `OpenCppCoverage.exe` installed as part
-of the optional prerequisites.
+To run with code coverage then use `OpenCppCoverage.exe` installed as part of
+the optional prerequisites.
 
 ```
 OpenCppCoverage.exe --modules=winss --sources=lib\winss\* --export_type=cobertura:build\coverage.xml -q -- build\bin\x64\Debug\winss-test.exe --gtest_output=xml:build\testresults.xml
@@ -83,8 +83,18 @@ powershell  .\tools\Run-Lint.ps1 [FILENAME]
 
 ## Deployment
 
-Download the latest *Release* build to your local system and add the folder
-to the %PATH%.
+These instructions will get you a copy of *winss* up and running on your local
+machine using a production version.
+
+### Prerequisites
+
+1. [Visual C++ Redistributable for Visual Studio 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48145)
+   needs to be installed.
+
+### Installing
+
+Download the [latest Release](https://github.com/Morgan-Stanley/winss/releases/latest)
+build to your local system and add the directory to the %PATH%.
 
 ## Built With
 
@@ -93,6 +103,7 @@ to the %PATH%.
   for parsing command line options.
 * [JSON for Modern C++](https://github.com/nlohmann/json) - for reading/writing
   JSON.
+* [Google Test](https://github.com/google/googletest) - for testing/mocking.
 
 ## Contributing
 
