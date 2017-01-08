@@ -36,6 +36,7 @@ install:
 - 7z x premake.zip
 - cinst opencppcoverage
 - pip install cpplint
+- pip install codecov
 
 before_build:
 # Set env vars expected in premake
@@ -59,6 +60,8 @@ test_script:
       {
          $wc = New-Object 'System.Net.WebClient'
          $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\build\testresults.xml))
+
+         & codecov -X gcov -f ".\build\coverage.xml"
       }
 
       & .\tools\Run-Lint.ps1
@@ -66,11 +69,8 @@ test_script:
     }
 
 artifacts:
-- path: build\bin\x64\Debug
-  name: debug
-  type: zip
-- path: build\bin\x64\Release
-  name: release
+- path: build\bin\x64\%Configuration%
+  name: winss
   type: zip
 - path: build\testresults.xml
   name: testresults
@@ -83,7 +83,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: mSvsAjNV2gCX/XNeDFuwXYc6w7BIZo4eY6sjS9hZnlGnpYPproDWjzirT5z86znF
-  artifact: release
+  artifact: winss
   draft: false
   prerelease: false
   on:
