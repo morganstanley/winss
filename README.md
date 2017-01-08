@@ -1,5 +1,10 @@
 # Windows Supervision Suite (*winss*)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/3f2rxoh1sqfro4gk?svg=true)](https://ci.appveyor.com/project/keithhendry/winss-f91wg)
+[![codecov](https://codecov.io/gh/Morgan-Stanley/winss/branch/master/graph/badge.svg)](https://codecov.io/gh/Morgan-Stanley/winss)
+[![GitHub release](https://img.shields.io/github/release/Morgan-Stanley/winss.svg)](https://github.com/Morgan-Stanley/winss/releases/latest)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 *winss* is a small suite of tools for Windows that is designed to be as close to
 its counterpart [S6](http://skarnet.org/software/s6/) as possible using native
 Windows features. It's core function is to allow process supervision but it
