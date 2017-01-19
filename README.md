@@ -14,7 +14,7 @@ also administration.
 Using this framework it is simple to handle complex scenarios with little code
 such as  adding/removing services and starting/stopping services in a particular
 sequence. There is no requirement to change an application to handle events
-like traditional Windows services. *winss* can handle simple console applcations
+like traditional Windows services. *winss* can handle simple console applications
 the way it should have been.
 
 ## Getting Started
