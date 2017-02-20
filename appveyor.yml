@@ -69,7 +69,7 @@ test_script:
     }
 
 artifacts:
-- path: build\bin\x64\%Configuration%
+- path: build\bin\x64\$(configuration)
   name: winss
   type: zip
 - path: build\testresults.xml
@@ -80,6 +80,7 @@ artifacts:
   name: lint
 
 deploy:
+  release: winss $(appveyor_build_version)
   provider: GitHub
   auth_token:
     secure: mSvsAjNV2gCX/XNeDFuwXYc6w7BIZo4eY6sjS9hZnlGnpYPproDWjzirT5z86znF
@@ -87,6 +88,5 @@ deploy:
   draft: false
   prerelease: false
   on:
-    branch: /^ms\\/
     appveyor_repo_tag: true
-    Configuration: Release
+    configuration: Release

@@ -4,14 +4,20 @@ workspace "WindowsSupervisionSuite"
     language "C++"
     location "build"
     characterset "MBCS"
-    symbols "On"
-    flags { "NoPCH", "FatalWarnings" }
+    flags { "NoPCH", "FatalWarnings", "NoIncrementalLink" }
     defines {
       "VC_EXTRALEAN",
       "WINS32_LEAN_AND_MEAN",
       'PROJECT_NAME="$(ProjectName)"',
       'YEAR=' .. os.date("%Y")
     }
+
+    filter "configurations:Debug"
+      symbols "On"
+      symbolspath "$(OutDir)$(TargetName).pdb"
+    filter "configurations:Release"
+      optimize "On"
+    filter {}
 
     build_version = os.getenv("BUILD_VERSION")
     if not build_version then
