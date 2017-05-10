@@ -1,3 +1,19 @@
+/*
+* Copyright 2016-2017 Morgan Stanley
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include <vector>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -229,7 +245,7 @@ TEST_F(ControlTest, OutboundInbound) {
     EXPECT_CALL(multiplexer, Stop(_)).Times(1);
     EXPECT_CALL(outbound_client, Send(_)).Times(1);
     EXPECT_CALL(listener, CanStart()).WillOnce(Return(true));
-    EXPECT_CALL(listener, HandleRecieved(_)).WillOnce(Return(false));
+    EXPECT_CALL(listener, HandleReceived(_)).WillOnce(Return(false));
 
     outbound.Init();
     inbound.Init();
@@ -246,7 +262,7 @@ TEST_F(ControlTest, OutboundInbound) {
     outbound.WriteComplete();
     outbound.Disconnected();
 
-    inbound.Recieved(commands);
+    inbound.Received(commands);
     inbound.Disconnected();
 
     EXPECT_TRUE(outbound.Completed());

@@ -1,3 +1,19 @@
+/*
+* Copyright 2016-2017 Morgan Stanley
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "winss/winss.hpp"
@@ -48,7 +64,7 @@ TEST_F(SuperviseControllerTest, Notify) {
         winss::SuperviseController::kSuperviseExit), state));
 }
 
-TEST_F(SuperviseControllerTest, Recieved) {
+TEST_F(SuperviseControllerTest, Received) {
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
     NiceMock<winss::MockSupervise> supervise(winss::NotOwned(&multiplexer),
         "test");
@@ -74,13 +90,13 @@ TEST_F(SuperviseControllerTest, Recieved) {
     EXPECT_CALL(supervise, Exit()).Times(1);
 
     winss::SuperviseState state{};
-    EXPECT_TRUE(controller.Recieved({ winss::SuperviseController::kSvcUp }));
-    EXPECT_TRUE(controller.Recieved({ winss::SuperviseController::kSvcOnce }));
-    EXPECT_TRUE(controller.Recieved(
+    EXPECT_TRUE(controller.Received({ winss::SuperviseController::kSvcUp }));
+    EXPECT_TRUE(controller.Received({ winss::SuperviseController::kSvcOnce }));
+    EXPECT_TRUE(controller.Received(
     { winss::SuperviseController::kSvcOnceAtMost }));
-    EXPECT_TRUE(controller.Recieved({ winss::SuperviseController::kSvcDown }));
-    EXPECT_TRUE(controller.Recieved({ winss::SuperviseController::kSvcKill }));
-    EXPECT_TRUE(controller.Recieved({ winss::SuperviseController::kSvcTerm }));
-    EXPECT_TRUE(controller.Recieved({ winss::SuperviseController::kSvcExit }));
+    EXPECT_TRUE(controller.Received({ winss::SuperviseController::kSvcDown }));
+    EXPECT_TRUE(controller.Received({ winss::SuperviseController::kSvcKill }));
+    EXPECT_TRUE(controller.Received({ winss::SuperviseController::kSvcTerm }));
+    EXPECT_TRUE(controller.Received({ winss::SuperviseController::kSvcExit }));
 }
 }  // namespace winss

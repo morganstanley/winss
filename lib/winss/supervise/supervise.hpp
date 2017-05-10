@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016-2017 Morgan Stanley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef LIB_WINSS_SUPERVISE_SUPERVISE_HPP_
 #define LIB_WINSS_SUPERVISE_SUPERVISE_HPP_
 
@@ -20,6 +36,9 @@
 namespace fs = std::experimental::filesystem;
 
 namespace winss {
+/**
+ * The state of the supervisor.
+ */
 struct SuperviseState {
     std::chrono::system_clock::time_point time;
     std::chrono::system_clock::time_point last;
@@ -31,32 +50,63 @@ struct SuperviseState {
     int exit_code;
     DWORD pid;
 };
+
+/**
+ * The supervisor events which can occur.
+ */
 enum SuperviseNotification {
-    UNKNOWN,
-    START,
-    RUN,
-    END,
-    FINISHED,
-    EXIT
+    UNKNOWN,  /**< Unknown notification. */
+    START,  /**< Supervisor starting. */
+    RUN,  /**< Run process has started. */
+    END,  /**< Run process has ended. */
+    FINISHED,  /**< Finish process has ended. */
+    EXIT  /**< Supervisor exiting. */
 };
+
+/**
+ * The supervisor listener.
+ */
 class SuperviseListener {
  public:
+     /**
+     * Supervisor listener handler.
+     *
+     * \param[in] notification The event which occurred.
+     * \param[in] state The current state of the supervisor.
+     * \return True if continue to listen otherwise false.
+     */
     virtual bool Notify(SuperviseNotification notification,
         const SuperviseState& state) = 0;
+
+    /**
+     * Default virtual destructor.
+     */
     virtual ~SuperviseListener() {}
 };
+
+/**
+ * The supervisor class template.
+ *
+ * \tparam TMutex The mutex implementation type.
+ * \tparam TProcess The process implementation type.
+ */
 template<typename TMutex, typename TProcess>
 class SuperviseTmpl {
  protected:
+    /** The event multiplexer for the supervisor. */
     winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer;
-    TMutex mutex;
-    TProcess process;
-    fs::path service_dir;
-    SuperviseState state{};
+    TMutex mutex;  /**< The supervisor global mutex. */
+    TProcess process;  /**< The supervised process. */
+    fs::path service_dir;  /**< The service directory. */
+    SuperviseState state{};  /**< The current supervised state. */
+    /** The supervisor listeners. */
     std::vector<winss::NotOwningPtr<winss::SuperviseListener>> listeners;
-    int exiting = 0;
-    bool waiting = false;
+    int exiting = 0;  /**< The exiting state. */
+    bool waiting = false;  /**< The waiting state. */
 
+    /**
+     * Initializes the supervisor.
+     */
     virtual void Init() {
         if (mutex.HasLock()) {
             return;
@@ -88,6 +138,14 @@ class SuperviseTmpl {
         Triggered(false);
     }
 
+
+    /**
+     * Gets the finish timeout value.
+     *
+     * This will read the finish-timeout file if it exists.
+     *
+     * \return The finish timeout in milliseconds.
+     */
     virtual DWORD GetFinishTimeout() const {
         std::string timeout_finish = FILESYSTEM.Read(kTimeoutFinishFile);
 
@@ -98,6 +156,12 @@ class SuperviseTmpl {
         return std::strtoul(timeout_finish.c_str(), nullptr, 10);
     }
 
+    /**
+     * Starts the process defined in the given file.
+     *
+     * \param[in] file_name The file which contains the process and arguments.
+     * \return True if the process started otherwise false.
+     */
     virtual bool Start(const std::string& file_name) {
         process.Close();
 
@@ -117,6 +181,11 @@ class SuperviseTmpl {
         return created;
     }
 
+    /**
+     * Starts the run file process.
+     *
+     * \return True if the process started otherwise false.
+     */
     virtual bool StartRun() {
         if (state.remaining_count == 0) {
             return false;
@@ -146,6 +215,11 @@ class SuperviseTmpl {
         return false;
     }
 
+    /**
+     * Starts the finish file process.
+     *
+     * \return True if the process started otherwise false.
+     */
     virtual bool StartFinish() {
         VLOG(2) << "Starting finish process";
 
@@ -171,6 +245,11 @@ class SuperviseTmpl {
         return false;
     }
 
+    /**
+     * Notify all the listeners with the given event.
+     *
+     * \param[in] notification The notification event.
+     */
     virtual void NotifyAll(winss::SuperviseNotification notification) {
         state.time = std::chrono::system_clock::now();
 
@@ -193,6 +272,13 @@ class SuperviseTmpl {
         }
     }
 
+    /**
+     * Event triggered handler.
+     *
+     * This will step the state machine forward.
+     *
+     * \param[in] timeout If the event was a timeout event.
+     */
     virtual void Triggered(bool timeout) {
         if (waiting && !timeout) {
             multiplexer->RemoveTimeoutCallback(kTimeoutGroup);
@@ -252,6 +338,14 @@ class SuperviseTmpl {
         }
     }
 
+     /**
+     * Tests exiting value.
+     *
+     * When the exiting value is 1 it will signal the multiplexer to stop
+     * and notify the listeners that the supervisor is about exit.
+     *
+     * \return True if exiting otherwise false.
+     */
     virtual bool Complete() {
         switch (exiting) {
         case 0:
@@ -269,6 +363,9 @@ class SuperviseTmpl {
         }
     }
 
+    /**
+     * Signal the supervisor to exit.
+     */
     virtual void Stop() {
         if (exiting) {
             return;
@@ -279,21 +376,31 @@ class SuperviseTmpl {
     }
 
  public:
-    static const int kMutexTaken = 100;
-    static const int kFatalExitCode = 111;
-    static const int kSignaledExitCode = 256;
-    static const DWORD kCommandTimeout = 5000;  // 5 seconds
-    static const DWORD kBusyWait = 1000;  // 1 second
+    static const int kMutexTaken = 100;  /**< Service dir in use error. */
+    static const int kFatalExitCode = 111;  /**< Something went wrong. */
+    static const int kSignaledExitCode = 256;  /**< Signaled to exit. */
+    static const DWORD kCommandTimeout = 5000;  /**< Default timeout 5s. */
+    static const DWORD kBusyWait = 1000;  /**< Busy wait 1s. */
+    /** Mutex name. */
     static constexpr const char kMutexName[10] = "supervise";
-    static constexpr const char kRunFile[4] = "run";
-    static constexpr const char kFinishFile[7] = "finish";
-    static constexpr const char kDownFile[5] = "down";
-    static constexpr const char kEnvDir[4] = "env";
+    static constexpr const char kRunFile[4] = "run";  /**< Run file. */
+    static constexpr const char kFinishFile[7] = "finish";  /**< Finish file. */
+    static constexpr const char kDownFile[5] = "down";  /**< Down file. */
+    static constexpr const char kEnvDir[4] = "env";  /**< Env directory. */
+    /** Timeout finish file. */
     static constexpr const char kTimeoutFinishFile[15] = "timeout-finish";
+    /** The timeout group for the multiplexer. */
     static constexpr const char kTimeoutGroup[10] = "supervise";
+     /** The environment variable to set with the exit code. */
     static constexpr const char kRunExitCodeEnvName[24] =
         "SUPERVISE_RUN_EXIT_CODE";
 
+    /**
+     * Supervise constructor.
+     *
+     * \param multiplexer The shared multiplexer.
+     * \param service_dir The service directory.
+     */
     SuperviseTmpl(winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer,
         const fs::path& service_dir) : multiplexer(multiplexer),
         mutex(service_dir, kMutexName), service_dir(service_dir) {
@@ -314,18 +421,31 @@ class SuperviseTmpl {
         });
     }
 
-    SuperviseTmpl(const SuperviseTmpl&) = delete;
-    SuperviseTmpl(SuperviseTmpl&&) = delete;
+    SuperviseTmpl(const SuperviseTmpl&) = delete;  /**< No copy. */
+    SuperviseTmpl(SuperviseTmpl&&) = delete;  /**< No move. */
 
+    /**
+     * Gets the current supervisor state.
+     *
+     * \return The supervisor state.
+     */
     virtual const SuperviseState& GetState() const {
         return state;
     }
 
+    /**
+     * Adds a supervisor listener to the list of listeners.
+     *
+     * \param[in] listener The listener to add.
+     */
     virtual void AddListener(
         winss::NotOwningPtr<winss::SuperviseListener> listener) {
         listeners.push_back(listener);
     }
 
+    /**
+     * Signals the supervisor to go into the up state.
+     */
     virtual void Up() {
         if (!mutex.HasLock() || exiting) {
             return;
@@ -338,6 +458,10 @@ class SuperviseTmpl {
         }
     }
 
+    /**
+     * Signals the supervisor to be in the up state and when the process
+     * exits then leave it down.
+     */
     virtual void Once() {
         if (!mutex.HasLock() || exiting) {
             return;
@@ -352,6 +476,9 @@ class SuperviseTmpl {
         }
     }
 
+    /**
+     * Signals the supervisor to only run one if it is already running.
+     */
     virtual void OnceAtMost() {
         if (!mutex.HasLock() || exiting) {
             return;
@@ -361,6 +488,9 @@ class SuperviseTmpl {
         state.remaining_count = 0;
     }
 
+    /**
+     * Signals the supervisor to be in the down state.
+     */
     virtual void Down() {
         if (!mutex.HasLock()) {
             return;
@@ -370,6 +500,9 @@ class SuperviseTmpl {
         Term();
     }
 
+    /**
+     * Kills the supervised process.
+     */
     virtual void Kill() {
         if (!mutex.HasLock()) {
             return;
@@ -381,6 +514,9 @@ class SuperviseTmpl {
         }
     }
 
+    /**
+     * Sends a CTRL+BREAK to the supervised process.
+     */
     virtual void Term() {
         if (!mutex.HasLock()) {
             return;
@@ -392,6 +528,9 @@ class SuperviseTmpl {
         }
     }
 
+    /**
+     * Signals the supervisor to exit.
+     */
     virtual void Exit() {
         if (!mutex.HasLock() || exiting) {
             return;
@@ -406,9 +545,13 @@ class SuperviseTmpl {
         }
     }
 
-    void operator=(const SuperviseTmpl&) = delete;
-    SuperviseTmpl& operator=(SuperviseTmpl&&) = delete;
+    void operator=(const SuperviseTmpl&) = delete;  /**< No copy. */
+    SuperviseTmpl& operator=(SuperviseTmpl&&) = delete;  /**< No move. */
 };
+
+/**
+ * Concrete supervise implementation.
+ */
 typedef SuperviseTmpl<winss::PathMutex, winss::Process> Supervise;
 }  // namespace winss
 
