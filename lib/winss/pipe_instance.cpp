@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016-2017 Morgan Stanley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "pipe_instance.hpp"
 #include <windows.h>
 #include <vector>
@@ -77,9 +93,8 @@ bool winss::PipeInstance::CheckError() {
         return false;
     } else {
         pending_io = true;
+        return true;
     }
-
-    return true;
 }
 
 winss::OverlappedResult winss::PipeInstance::GetOverlappedResult() {
@@ -360,7 +375,7 @@ winss::InboundPipeInstance::InboundPipeInstance(
 
 bool winss::InboundPipeInstance::FinishRead() {
     if (connected && bytes != 0) {
-        VLOG(5) << "Recieved " << bytes << " bytes";
+        VLOG(5) << "Received " << bytes << " bytes";
         pending_io = false;
         return true;
     }

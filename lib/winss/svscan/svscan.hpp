@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016-2017 Morgan Stanley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef LIB_WINSS_SVSCAN_SVSCAN_HPP_
 #define LIB_WINSS_SVSCAN_SVSCAN_HPP_
 
@@ -20,18 +36,32 @@
 namespace fs = std::experimental::filesystem;
 
 namespace winss {
+/**
+ * The svscan template.
+ *
+ * Scans a directory either on a timer or on demand and starts supervisors
+ * for each service directory it sees.
+ *
+ * \tparam TService The service implementation type.
+ * \tparam TMutex The mutex implementation type.
+ * \tparam TMutex The process implementation type.
+ */
 template<typename TService, typename TMutex, typename TProcess>
 class SvScanTmpl {
  protected:
+    /** The event multiplexer for svscan. */
     winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer;
-    fs::path scan_dir;
-    const DWORD rescan;
-    TMutex mutex;
-    bool exiting = false;
-    bool close_on_exit = true;
+    fs::path scan_dir;  /**< The scan directory. */
+    const DWORD rescan;  /**< The directory scan period. */
+    TMutex mutex;  /**< The svscan global mutex. */
+    bool exiting = false;  /**< Exiting flag. */
+    bool close_on_exit = true;  /**< Option to close services on exit. */
 
-    std::vector<TService> services;
+    std::vector<TService> services;  /**< A list of services. */
 
+    /**
+     * Initializes svscan.
+     */
     void Init() {
         if (mutex.HasLock()) {
             return;
@@ -53,6 +83,15 @@ class SvScanTmpl {
         Scan(false);
     }
 
+    /**
+     * Checks the given service directory.
+     *
+     * If the service dir has not been seen then it will be added to the list.
+     * If the service dir has been seen it will be checked to make sure it is
+     * running.
+     *
+     * \param[in] service_dir The service directory.
+     */
     void Check(const fs::path& service_dir) {
         std::string name = service_dir.filename().string();
 
@@ -78,6 +117,9 @@ class SvScanTmpl {
         }
     }
 
+    /**
+     * Schedules the next scan of the scan directory.
+     */
     void Schedule() {
         if (rescan > 0 && rescan != INFINITE) {
             multiplexer->AddTimeoutCallback(rescan, [&](
@@ -87,6 +129,9 @@ class SvScanTmpl {
         }
     }
 
+    /**
+     * Stops the svscan instance.
+     */
     void Stop() {
         if (!exiting) {
             multiplexer->RemoveTimeoutCallback(kTimeoutGroup);
@@ -115,13 +160,22 @@ class SvScanTmpl {
     }
 
  public:
-    static const int kMutexTaken = 100;
-    static const int kFatalExitCode = 111;
-    static constexpr const char kMutexName[7] = "svscan";
+    static const int kMutexTaken = 100;  /**< Scan dir in use error. */
+    static const int kFatalExitCode = 111;  /**< Something went wrong. */
+    static constexpr const char kMutexName[7] = "svscan"; /**< Mutex name. */
+    /** The timeout group for the multiplexer. */
     static constexpr const char kTimeoutGroup[7] = "svscan";
+    /** The directory for svscan data. */
     static constexpr const char kSvscanDir[14] = ".winss-svscan";
-    static constexpr const char kFinishFile[7] = "finish";
+    static constexpr const char kFinishFile[7] = "finish";  /**< Finish file. */
 
+    /**
+     * SvScan constructor.
+     *
+     * \param multiplexer The shared multiplexer.
+     * \param scan_dir The scan directory.
+     * \param rescan The scan period.
+     */
     SvScanTmpl(winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer,
         const fs::path& scan_dir, DWORD rescan) : multiplexer(multiplexer),
         scan_dir(scan_dir), rescan(rescan), mutex(scan_dir, kMutexName) {
@@ -134,9 +188,12 @@ class SvScanTmpl {
         });
     }
 
-    SvScanTmpl(const SvScanTmpl&) = delete;
-    SvScanTmpl(SvScanTmpl&&) = delete;
+    SvScanTmpl(const SvScanTmpl&) = delete;  /**< No copy. */
+    SvScanTmpl(SvScanTmpl&&) = delete;  /**< No move. */
 
+    /**
+     * Does a scan of the scan directory.
+     */
     virtual void Scan(bool timeout) {
         if (!mutex.HasLock() || exiting) {
             return;
@@ -159,6 +216,11 @@ class SvScanTmpl {
         Schedule();
     }
 
+    /**
+     * Closes all the services.
+     *
+     * \param ignore_flagged Force the services to close.
+     */
     virtual void CloseAllServices(bool ignore_flagged) {
         if (!mutex.HasLock()) {
             return;
@@ -178,14 +240,24 @@ class SvScanTmpl {
         }
     }
 
+
+    /**
+     * Signals the scanner to exit.
+     *
+     * \param close_services Mark if the services should be closed.
+     */
     virtual void Exit(bool close_services) {
         close_on_exit = close_services;
         multiplexer->Stop(0);
     }
 
-    void operator=(const SvScanTmpl&) = delete;
-    SvScanTmpl& operator=(SvScanTmpl&&) = delete;
+    void operator=(const SvScanTmpl&) = delete;  /**< No copy. */
+    SvScanTmpl& operator=(SvScanTmpl&&) = delete;  /**< No move. */
 };
+
+/**
+ * Concrete svscan implementation.
+ */
 typedef SvScanTmpl<winss::Service, winss::PathMutex, winss::Process> SvScan;
 }  // namespace winss
 
