@@ -2,6 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/3f2rxoh1sqfro4gk?svg=true)](https://ci.appveyor.com/project/keithhendry/winss-f91wg)
 [![codecov](https://codecov.io/gh/Morgan-Stanley/winss/branch/master/graph/badge.svg)](https://codecov.io/gh/Morgan-Stanley/winss)
+[![Documentation Status](https://readthedocs.org/projects/winss/badge/?version=latest)](http://winss.readthedocs.io/en/latest/?badge=latest)
 [![GitHub release](https://img.shields.io/github/release/Morgan-Stanley/winss.svg)](https://github.com/Morgan-Stanley/winss/releases/latest)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
