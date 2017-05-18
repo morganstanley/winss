@@ -1,5 +1,7 @@
 import datetime
 import os
+import subprocess
+import sys
 
 import sphinx_rtd_theme
 
@@ -30,3 +32,10 @@ html_show_sphinx = True
 html_static_path = ['_static']
 
 htmlhelp_basename = 'winss-doc'
+
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+if read_the_docs_build:
+    html_extra_path = ['../doxygen/html']
+    os.makedirs('../doxygen/html/lib', exist_ok=True)
+    sys.stderr.write("current dir %s\n" % (os.getcwd()))
+    subprocess.call('cd ../doxygen; doxygen', shell=True)

@@ -1,4 +1,4 @@
 Library
 -------
 
-Details of the *winss* lib can be found `here <http://codedocs.xyz/Morgan-Stanley/winss/>`_.
+Details of the *winss* lib can be found `here <lib/index.html>`_.

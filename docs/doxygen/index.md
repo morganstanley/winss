@@ -10,9 +10,9 @@ likely to occur.
 
 Examples of how to use this lib can be found [here][bin]. To use it in your
 application you will have to download from [github] or build it yourself using
-[readme].
+the [readme].
 
 [WaitMultiplexer]: @ref winss::WaitMultiplexer "WaitMultiplexer"
-[bin]: https://github.com/Morgan-Stanley/winss/tree/master/bin
+[bin]: https://github.com/Morgan-Stanley/winss/tree/master/bin "bin"
 [github]: https://github.com/Morgan-Stanley/winss/releases/latest "github"
-[readme]: https://github.com/Morgan-Stanley/winss/blob/master/README.md "readme"
+[readme]: https://github.com/Morgan-Stanley/winss/blob/master/README.md#windows-supervision-suite-winss "readme"

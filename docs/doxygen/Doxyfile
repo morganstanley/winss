@@ -1,13 +1,11 @@
 PROJECT_NAME = winss
-INPUT = lib/winss
+INPUT = index.md ../../lib/winss
 RECURSIVE = YES
 FILE_PATTERNS = *.cpp *.h *.hpp
-INCLUDE_PATH = lib
+INCLUDE_PATH = ../../lib
+USE_MDFILE_AS_MAINPAGE = index.md
 
-INPUT += docs/doxygen/index.md
-USE_MDFILE_AS_MAINPAGE = docs/doxygen/index.md
-
-OUTPUT_DIRECTORY = build
+OUTPUT_DIRECTORY = html/lib
 GENERATE_HTML = YES
 GENERATE_LATEX = NO
 HTML_OUTPUT = .
@@ -34,4 +32,3 @@ WARNINGS = YES
 WARN_IF_UNDOCUMENTED = YES
 WARN_IF_DOC_ERROR = YES
 WARN_NO_PARAMDOC = YES
-WARN_AS_ERROR = YES
