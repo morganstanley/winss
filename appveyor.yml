@@ -76,10 +76,11 @@ artifacts:
   name: testresults
 - path: build\coverage.xml
   name: coverage
-- path: build\lint.txt
-  name: lint
+- path: build\cpplint.out
+  name: cpplint
 
 deploy:
+  tag: $(appveyor_repo_tag_name)
   release: winss $(appveyor_build_version)
   provider: GitHub
   auth_token:
@@ -88,5 +89,6 @@ deploy:
   draft: false
   prerelease: false
   on:
+    branch: /^ms\\/
     appveyor_repo_tag: true
     configuration: Release

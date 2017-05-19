@@ -78,7 +78,7 @@ powershell .\tools\Run-Tests.ps1
 To check then use `cpplint`
 
 ```
-cpplint --extension=hpp,cpp --headers=hpp --filter=-legal/copyright,-build/c++11 <filename>
+cpplint --extension=hpp,cpp --headers=hpp --filter=-build/c++11 <filename>
 ```
 
 Or use the powershell script with an optional filename:
