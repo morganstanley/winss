@@ -90,5 +90,5 @@ deploy:
   prerelease: false
   on:
     appveyor_repo_tag: true
-    appveyor_repo_tag_name: /^ms\//
+    appveyor_repo_tag_name: /^ms/
     configuration: Release
