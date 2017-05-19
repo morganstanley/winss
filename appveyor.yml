@@ -89,6 +89,6 @@ deploy:
   draft: false
   prerelease: false
   on:
-    branch: /^ms\\/
     appveyor_repo_tag: true
+    appveyor_repo_tag_name: /^ms\//
     configuration: Release
