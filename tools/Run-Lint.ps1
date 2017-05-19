@@ -13,7 +13,7 @@ else
 Remove-Item build\lint.txt -ErrorAction Ignore
 try
 {
-    [string] (& "cpplint" "--extensions=cpp,hpp" "--headers=hpp" "--filter=-legal/copyright,-build/c++11" "--recursive" $items 2>&1) | Tee-Object -file "$buildDir\lint.txt"
+    [string] (& "cpplint" "--output=vs7" "--quiet" "--extensions=cpp,hpp" "--headers=hpp" "--filter=-build/c++11" "--recursive" $items 2>&1) | Tee-Object -file "$buildDir\cpplint.out"
     Exit $LastExitCode
 }
 catch
