@@ -62,11 +62,21 @@ winss::LogSettings winss::LogSettingsParser::Parse(
                     LOG(WARNING) << "File size '" << value << "' is invalid";
                 }
                 break;
-            case '\\':
-                settings.log_dir = value;
+            case 'T':
+                settings.timestamp = true;
+                VLOG(3) << "Prepend ISO 8601 timestamp";
+                break;
+            case '.':
+                settings.log_dir = directive;
+                VLOG(3) << "Log dir set to " << directive;
                 break;
             default:
-                LOG(WARNING) << "Unrecognized script directive ";
+                if (directive.length() > 2 && directive[1] == ':') {
+                    settings.log_dir = directive;
+                    VLOG(3) << "Log dir set to " << directive;
+                } else {
+                    LOG(WARNING) << "Unrecognized script directive ";
+                }
                 break;
             }
         }

@@ -70,6 +70,7 @@ workspace "WindowsSupervisionSuite"
     project "winss-svwait"
       kind "ConsoleApp"
       links { "winss" }
+      linkoptions { "setargv.obj" }
       includedirs { "lib" }
       files { "bin/winss-svwait.cpp", "bin/resource/*" }
 

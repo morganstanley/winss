@@ -16,14 +16,28 @@
 
 #include <string>
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "winss/winss.hpp"
 #include "winss/pipe_name.hpp"
+#include "mock_interface.hpp"
+#include "mock_filesystem_interface.hpp"
+
+using ::testing::_;
+using ::testing::NiceMock;
+using ::testing::Return;
+
+namespace fs = std::experimental::filesystem;
 
 namespace winss {
 class PipeNameTest : public testing::Test {
 };
 
 TEST_F(PipeNameTest, Name) {
+    MockInterface<winss::MockFilesystemInterface> file;
+
+    EXPECT_CALL(*file, CanonicalUncPath(_))
+        .WillRepeatedly(Return(fs::path(".")));
+
     winss::PipeName pipe_name1(".");
     winss::PipeName pipe_name2(".", "pipe_name2");
 
@@ -32,11 +46,16 @@ TEST_F(PipeNameTest, Name) {
     EXPECT_GT(name1.length(), (size_t) 7);
 
     const std::string& name2 = pipe_name2.Get();
-    EXPECT_EQ(0, name2.find("\\\\.\\pipe\\"));
+    EXPECT_EQ(0, name2.find(name1));
     EXPECT_GT(name2.find("_pipe_name2"), (size_t) 0);
 }
 
 TEST_F(PipeNameTest, Append) {
+    MockInterface<winss::MockFilesystemInterface> file;
+
+    EXPECT_CALL(*file, CanonicalUncPath(_))
+        .WillRepeatedly(Return("."));
+
     winss::PipeName pipe_name1(".");
 
     winss::PipeName pipe_name2 = pipe_name1.Append("test");
@@ -49,6 +68,11 @@ TEST_F(PipeNameTest, Append) {
 }
 
 TEST_F(PipeNameTest, CopyAndMove) {
+    MockInterface<winss::MockFilesystemInterface> file;
+
+    EXPECT_CALL(*file, CanonicalUncPath(_))
+        .WillRepeatedly(Return(fs::path(".")));
+
     winss::PipeName pipe_name1(".");
 
     winss::PipeName pipe_name2(pipe_name1);

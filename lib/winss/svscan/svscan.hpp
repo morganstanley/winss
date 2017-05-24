@@ -67,8 +67,11 @@ class SvScanTmpl {
             return;
         }
 
-        if (!FILESYSTEM.DirectoryExists(scan_dir)) {
-            LOG(ERROR) << "The directory '" << scan_dir << "' does not exist.";
+        if (!FILESYSTEM.ChangeDirectory(scan_dir)) {
+            LOG(ERROR)
+                << "The directory '"
+                << scan_dir
+                << "' does not exist.";
             multiplexer->Stop(kFatalExitCode);
             return;
         }
@@ -107,7 +110,7 @@ class SvScanTmpl {
 
         auto it = find_if(services.begin(), services.end(), pred);
         if (it == services.end()) {
-            TService service(name, service_dir);
+            TService service(name);
             VLOG(2) << "Found new service " << name;
             service.Check();
             services.push_back(std::move(service));
@@ -153,7 +156,7 @@ class SvScanTmpl {
 
                 TProcess finish;
                 finish.Create(winss::ProcessParams{
-                    expanded, false, svscan_dir.string()
+                    expanded, false
                 });
             }
         }
@@ -232,7 +235,7 @@ class SvScanTmpl {
         while (it != services.end()) {
             bool flagged = it->Close(ignore_flagged);
             if (!flagged) {
-                VLOG(4) << "Removing service " << it->GetName();
+                VLOG(2) << "Removing service " << it->GetName();
                 it = services.erase(it);
             } else {
                 ++it;

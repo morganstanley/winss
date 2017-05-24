@@ -40,7 +40,8 @@ struct ServicePipes {
  * A template for a service process.
  *
  * Models a service process which would be either the main service or the log
- * service.
+ * service. Log services should be started with a consumer pipe to the pipes
+ * of the main service.
  *
  * \tparam TMutex The process implementation type.
  */
@@ -49,8 +50,6 @@ class ServiceProcessTmpl {
  protected:
     fs::path service_dir;  /**< The service directory. */
     TProcess proc;  /**< The supervisor process. */
-    bool flagged = false;  /**< Flagged for removal. */
-    bool is_log = false;  /**< Is this service the log service. */
 
  public:
     /** The supervisor name. */
@@ -62,14 +61,12 @@ class ServiceProcessTmpl {
     ServiceProcessTmpl() {}
 
     /**
-     * Initializes the service process with the directory and if it is
-     * the log service.
+     * Initializes the service process with the service directory.
      *
      * \param service_dir The path to the service directory.
-     * \param is_log Is this service the log service.
      */
-    ServiceProcessTmpl(const fs::path& service_dir, bool is_log) :
-        service_dir(std::move(service_dir)), is_log(is_log) {}
+    explicit ServiceProcessTmpl(fs::path service_dir) :
+        service_dir(std::move(service_dir)) {}
 
     ServiceProcessTmpl(const ServiceProcessTmpl&) = delete;  /**< No copy. */
 
@@ -79,26 +76,8 @@ class ServiceProcessTmpl {
      * \param p The previous service process.
      */
     ServiceProcessTmpl(ServiceProcessTmpl&& p) :
-        service_dir(std::move(p.service_dir)), proc(std::move(p.proc)),
-        flagged(p.flagged), is_log(p.is_log) {}
-
-    /**
-     * Gets if the service is flagged or not.
-     *
-     * \return True if the service is flagged otherwise false.
-     */
-    virtual bool IsFlagged() const {
-        return flagged;
-    }
-
-    /**
-     * Gets if the service process is a log service.
-     *
-     * \return True if the service is a log service otherwise false.
-     */
-    virtual bool IsLog() const {
-        return is_log;
-    }
+        service_dir(std::move(p.service_dir)),
+        proc(std::move(p.proc)) {}
 
     /**
      * Gets the path of the service directory.
@@ -110,24 +89,21 @@ class ServiceProcessTmpl {
     }
 
     /**
-     * Resets the service process.
-     *
-     * This will remove the flag.
-     */
-    virtual void Reset() {
-        VLOG(4) << "Resetting service " << service_dir;
-        flagged = false;
+    * Gets the service process is created.
+    *
+    * \return True if the service process is created otherwise false.
+    */
+    virtual bool IsCreated() const {
+        return proc.IsCreated();
     }
 
     /**
      * Starts the service process.
      *
      * \param[in] pipes The redirected pipes.
+     * \param[in] consumer The process is a consumer of the pipes.
      */
-    virtual void Start(const ServicePipes& pipes) {
-        VLOG(3) << "Starting service " << service_dir;
-        flagged = true;
-
+    virtual void Start(const ServicePipes& pipes, bool consumer) {
         if (proc.IsCreated()) {
             VLOG(3)
                 << "Process for service dir "
@@ -136,12 +112,14 @@ class ServiceProcessTmpl {
             return;
         }
 
+        VLOG(3) << "Starting service " << service_dir;
+
         std::string cmd = kSuperviseExe + std::string(SUFFIX) + ".exe"
             " \"" + service_dir.string() + "\"";
 
         winss::ProcessParams params{ cmd, true };
 
-        if (is_log) {
+        if (consumer) {
             params.stdin_pipe = pipes.stdin_pipe;
         } else {
             params.stdout_pipe = pipes.stdout_pipe;
@@ -153,18 +131,12 @@ class ServiceProcessTmpl {
 
     /**
      * Closes the service process.
-     *
-     * \param[in] ignore_flagged Force close the service process.
      */
-    virtual bool Close(bool ignore_flagged) {
-        if ((ignore_flagged || !flagged) && proc.IsCreated()) {
-            VLOG(3) << "Closing service " << service_dir;
+    virtual void Close() {
+        if (proc.IsCreated()) {
             proc.SendBreak();
             proc.Close();
-            flagged = false;
         }
-
-        return flagged;
     }
 
     void operator=(const ServiceProcessTmpl&) = delete;  /**< No copy. */
@@ -178,8 +150,6 @@ class ServiceProcessTmpl {
     ServiceProcessTmpl& operator=(ServiceProcessTmpl&& p) {
         service_dir = std::move(p.service_dir);
         proc = std::move(p.proc);
-        flagged = p.flagged;
-        is_log = p.is_log;
         return *this;
     }
 

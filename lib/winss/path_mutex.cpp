@@ -25,7 +25,7 @@
 namespace fs = std::experimental::filesystem;
 
 winss::PathMutex::PathMutex(fs::path path, std::string name) {
-    path = FILESYSTEM.Absolute(path);
+    path = FILESYSTEM.CanonicalUncPath(path);
     mutex_name = "Global\\" +
         winss::SHA256::CalculateDigest(path.string());
 

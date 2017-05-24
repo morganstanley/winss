@@ -28,6 +28,7 @@
 #include "../filesystem_interface.hpp"
 #include "../not_owning_ptr.hpp"
 #include "../path_mutex.hpp"
+#include "../utils.hpp"
 #include "log_settings.hpp"
 #include "log_stream_wrapper.hpp"
 
@@ -191,7 +192,16 @@ class LogTmpl {
                 CleanArchives();
             }
 
-            writer->Write(reader->GetLine());
+            std::string line = reader->GetLine();
+
+            if (settings.timestamp) {
+                auto now = std::chrono::system_clock::now();
+                writer->Write(winss::Utils::ConvertToISOString(now));
+                writer->Write(" ");
+            }
+
+            writer->Write(line);
+            writer->WriteLine();
         }
 
         writer->Close();

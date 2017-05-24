@@ -35,19 +35,27 @@ interface to control its state.
   monitoring this :term:`service`.
 - If the default state is *up* and not :ref:`down` then :ref:`winss-supervise`
   starts the :ref:`run` process.
+- If the :ref:`run` process fails to start then it will wait 10 seconds
+  before trying to start again. It does not execute :ref:`finish` on failure
+  to execute :ref:`run`.
 - When :ref:`run` dies, :ref:`winss-supervise` will start the :ref:`finish`
-  process if it exists, with the exit code of :ref:`run`.
-- By default, :ref:`finish` must exit in less than *5-seconds* and will be
-  terminated if still running. This timeout can be customized using the
-  :ref:`timeout-finish` file.
-- When :ref:`finish` dies (or is killed), :ref:`winss-supervise` will wait at
-  least *1-second* before starting :ref:`run` again to avoid busy-looping if
-  :ref:`run` exits too quickly. the following environment variables will be set:
+  process if it exists, with the exit code of :ref:`run`. The following
+  environment variables will be set:
 
   .. envvar:: SUPERVISE_RUN_EXIT_CODE
   
     The exit code of the :ref:`run` process will be set for the :ref:`finish`
     process.
+
+- By default, :ref:`finish` must exit in less than *5-seconds* and will be
+  terminated if still running. This timeout can be customized using the
+  :ref:`timeout-finish` file.
+- When :ref:`finish` dies (or is killed), :ref:`winss-supervise` will wait at
+  least *1-second* before starting :ref:`run` again to avoid busy-looping if
+  :ref:`run` exits too quickly.
+- If :ref:`finish` exits with 125, then :ref:`winss-supervise` will not restart
+  the :ref:`run` process. This can be used to signify permanent failure to
+  start the service or you want to control the service coming up manually.
 
 .. note::
 
@@ -219,19 +227,26 @@ These directives tune :ref:`winss-log`'s behavior for the next actions.
 - **s** *filesize*: next rotations will occur when current log files approach
   *filesize* bytes. By default, *filesize* is 99999; it cannot be set lower than
   4096 or higher than 16777215.
+- **T**: the selected line will be prepended with a
+  `ISO 8601 timestamp <iso_timestamp>`_.
 
 Action
 """"""
 
 These directives determine what :ref:`winss-log` actually does with the logs.
 
-- **dir** (must start with '\'): logdir. :ref:`winss-log` will log the line into
-  the logdir *dir*. :ref:`winss-log` must have the right to write to *dir*.
+- **dir** (must start with '.' or '[A-Z]:'): logdir. :ref:`winss-log` will
+  log the line into the log *dir*. :ref:`winss-log` must have the right to write
+  to the log *dir*.
+    
+   The drive letter needs to be different from a control directive otherwise
+   it will not be interpreted as a log *dir*. Unfortunately UNC paths are not
+   supported at this time but this will solve this issue.
 
 Examples
 """"""""
 
-:ref:`winss-log` n20 s1000000 \.
+:ref:`winss-log` n20 s1000000 .
 
 .. _winss-svc:
 
@@ -517,3 +532,4 @@ Options
     processes supervising loggers.
 
 .. _signal: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682541(v=vs.85).aspx
+.. _iso_timestamp: http://en.wikipedia.org/wiki/ISO_8601

@@ -28,6 +28,7 @@ namespace winss {
 struct LogSettings {
     unsigned int number = 10;  /**< The number of archives to keep. */
     unsigned int file_size = 99999;  /**< The max file size in bytes. */
+    bool timestamp = false;  /**< Prepend a ISO 8601 timestamp. */
     fs::path log_dir = ".";  /**< The log directory. */
 };
 }  // namespace winss

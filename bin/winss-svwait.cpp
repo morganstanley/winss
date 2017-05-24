@@ -136,8 +136,15 @@ Settings ParseArgs(int argc, char* argv[]) {
 
     Settings settings{};
     for (int i = 0; i < parse.nonOptionsCount(); i++) {
-        settings.service_dirs.push_back(
-            std::move(FILESYSTEM.Absolute(parse.nonOption(i))));
+        std::string name(parse.nonOption(i));
+
+        if (name.empty() || name.front() == L'.'
+            || !FILESYSTEM.DirectoryExists(name)) {
+            VLOG(4) << "Skipping directory " << name;
+        } else {
+            settings.service_dirs.push_back(
+                std::move(FILESYSTEM.Absolute(name)));
+        }
     }
 
     for (int i = 0; i < parse.optionsCount(); ++i) {
