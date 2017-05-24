@@ -91,6 +91,11 @@ class LogStreamWriter {
     virtual void Write(const std::string& line);
 
     /**
+    * Writes a line terminator to the stream.
+    */
+    virtual void WriteLine();
+
+    /**
      * Gets the current position in the stream.
      *
      * \return The current stream position.

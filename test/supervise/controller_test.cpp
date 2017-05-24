@@ -20,6 +20,8 @@
 #include "winss/supervise/controller.hpp"
 #include "winss/supervise/supervise.hpp"
 #include "winss/not_owning_ptr.hpp"
+#include "../mock_filesystem_interface.hpp"
+#include "../mock_interface.hpp"
 #include "../mock_pipe_server.hpp"
 #include "../mock_pipe_name.hpp"
 #include "../mock_wait_multiplexer.hpp"
@@ -28,15 +30,22 @@
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::InSequence;
+using ::testing::Return;
 
 namespace winss {
 class SuperviseControllerTest : public testing::Test {
 };
 
 TEST_F(SuperviseControllerTest, Notify) {
+    MockInterface<winss::MockFilesystemInterface> file;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
+
+    EXPECT_CALL(*file, CanonicalUncPath(_))
+        .WillRepeatedly(Return(fs::path(".")));
+
     NiceMock<winss::MockSupervise> supervise(winss::NotOwned(&multiplexer),
         "test");
+
     NiceMock<winss::MockOutboundPipeServer> outbound(winss::PipeServerConfig{
         winss::MockPipeName("inbound"),
         winss::NotOwned(&multiplexer)
@@ -65,7 +74,12 @@ TEST_F(SuperviseControllerTest, Notify) {
 }
 
 TEST_F(SuperviseControllerTest, Received) {
+    MockInterface<winss::MockFilesystemInterface> file;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
+
+    EXPECT_CALL(*file, CanonicalUncPath(_))
+        .WillRepeatedly(Return(fs::path(".")));
+
     NiceMock<winss::MockSupervise> supervise(winss::NotOwned(&multiplexer),
         "test");
     NiceMock<winss::MockOutboundPipeServer> outbound(winss::PipeServerConfig{

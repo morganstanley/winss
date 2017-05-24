@@ -44,6 +44,7 @@ class ServiceTmpl {
     std::string name;  /**< The name of the service. */
     TServiceProcess main;  /**< The main supervisor. */
     TServiceProcess log;  /**< The log supervisor. */
+    bool flagged = false;  /**< Flagged for removal. */
 
     /**
      * Creates pipes for redirecting STDIN and STDOUT.
@@ -82,12 +83,10 @@ class ServiceTmpl {
      * Initializes the service with the name and directory.
      *
      * \param name The name of the service.
-     * \param service_dir The path to the service directory.
      */
-    ServiceTmpl(std::string name, const fs::path& service_dir) : name(name),
-        main(std::move(TServiceProcess(service_dir, false))),
-        log(std::move(TServiceProcess(
-            service_dir / fs::path(kLogDir), true))) {}
+    explicit ServiceTmpl(const std::string& name) : name(name),
+        main(TServiceProcess(name)),
+        log(TServiceProcess(name / fs::path(kLogDir))) {}
 
     ServiceTmpl(const ServiceTmpl&) = delete;  /**< No copy. */
 
@@ -97,9 +96,10 @@ class ServiceTmpl {
      * \param s The previous service.
      */
     ServiceTmpl(ServiceTmpl&& s) : name(std::move(s.name)),
-        main(std::move(s.main)), log(std::move(s.log)) {}
+        main(std::move(s.main)), log(std::move(s.log)),
+        flagged(s.flagged) {}
 
-     /**
+    /**
      * Gets the name of the service
      *
      * \return The name of the service as a string.
@@ -108,37 +108,55 @@ class ServiceTmpl {
         return name;
     }
 
-     /**
+    /**
+     * Gets if the service is flagged or not.
+     *
+     * \return True if flagged or false if not.
+     */
+    virtual bool IsFlagged() const {
+        return flagged;
+    }
+
+    /**
      * Resets the service.
      */
     virtual void Reset() {
-        main.Reset();
-        log.Reset();
+        flagged = false;
     }
 
     /**
      * Checks the service is running.
      */
     virtual void Check() {
+        flagged = true;
+
+        if (main.IsCreated()) {
+            return;
+        }
+
         winss::ServicePipes pipes;
 
         if (FILESYSTEM.DirectoryExists(log.GetServiceDir())) {
             VLOG(3) << "Log directory exists for service " << name;
             pipes = CreatePipes();
-            log.Start(pipes);
+            log.Start(pipes, true);
         }
 
-        main.Start(pipes);
+        main.Start(pipes, false);
     }
 
     /**
      * Close the service.
      *
      * \param[in] ignore_flagged Will force close the service.
+     * \return True if the service is flagged for removal otherwise false.
      */
     virtual bool Close(bool ignore_flagged) {
-        bool flagged = main.Close(ignore_flagged);
-        log.Close(ignore_flagged || !flagged);
+        if (ignore_flagged || !flagged) {
+            main.Close();
+            log.Close();
+            flagged = false;
+        }
 
         return flagged;
     }
@@ -155,6 +173,7 @@ class ServiceTmpl {
         name = std::move(s.name);
         main = std::move(s.main);
         log = std::move(s.log);
+        flagged = s.flagged;
         return *this;
     }
 };

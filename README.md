@@ -109,6 +109,8 @@ build to your local system and add the directory to the %PATH%.
   for parsing command line options.
 * [JSON for Modern C++](https://github.com/nlohmann/json) - for reading/writing
   JSON.
+* [HowardHinnant/date](https://github.com/HowardHinnant/date) - for
+  converting to and from ISO 8601 strings with millisecond precision.
 * [Google Test](https://github.com/google/googletest) - for testing/mocking.
 
 ## Contributing

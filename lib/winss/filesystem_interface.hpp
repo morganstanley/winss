@@ -112,12 +112,20 @@ class FilesystemInterface {
     virtual bool FileExists(const fs::path& path) const;
 
     /**
-     * Gets the canonical path.
+     * Gets the absolute path.
      *
      * \param[in] path The path to convert.
-     * \return The canonical path.
+     * \return The absolute path.
      */
     virtual fs::path Absolute(const fs::path& path) const;
+
+    /**
+    * Gets the canonical UNC path.
+    *
+    * \param[in] path The path to convert.
+    * \return The canonical UNC path.
+    */
+    virtual fs::path CanonicalUncPath(const fs::path& path) const;
 
     /**
      * Gets a list of directories at the given path.

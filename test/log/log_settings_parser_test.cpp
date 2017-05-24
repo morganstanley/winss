@@ -35,11 +35,13 @@ class LogSettingsParserTest : public testing::Test {
 TEST_F(LogSettingsParserTest, ParseDefault) {
     MockInterface<winss::MockFilesystemInterface> file;
 
-    EXPECT_CALL(*file, Absolute(fs::path("."))).
+    EXPECT_CALL(*file, Absolute(fs::path(".\test"))).
         WillOnce(Return(fs::path("C:\\")));
 
     LogSettingsParser parser;
-    winss::LogSettings settings = parser.Parse({ "n2", "s4096", "\\.", "g2" });
+    winss::LogSettings settings = parser.Parse({
+        "n2", "s4096", ".\test", "g2"
+    });
 
     EXPECT_EQ(2, settings.number);
     EXPECT_EQ(4096, settings.file_size);

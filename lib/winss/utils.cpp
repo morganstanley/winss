@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#define NOMINMAX
 #include "utils.hpp"
 #include <windows.h>
 #include <sstream>
@@ -23,6 +24,7 @@
 #include <chrono>
 #include <string>
 #include <map>
+#include "date/date.hpp"
 #include "windows_interface.hpp"
 
 std::string winss::Utils::ExpandEnvironmentVariables(
@@ -67,19 +69,15 @@ winss::env_t winss::Utils::GetEnvironmentVariables() {
 
 std::string winss::Utils::ConvertToISOString(
     const std::chrono::system_clock::time_point& time_point) {
-    std::time_t time = std::chrono::system_clock::to_time_t(time_point);
-    std::tm tm;
-    std::stringstream ss;
-    if (!gmtime_s(&tm, &time)) {
-        ss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S");
-    }
-    return ss.str();
+    return date::format("%F %T",
+        date::floor<std::chrono::milliseconds>(time_point));
 }
 
 std::chrono::system_clock::time_point winss::Utils::ConvertFromISOString(
     const std::string& iso_string) {
-    std::tm tm = {};
-    std::stringstream ss(iso_string);
-    ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
-    return std::chrono::system_clock::from_time_t(_mkgmtime(&tm));
+    std::istringstream ss;
+    ss.str(iso_string);
+    std::chrono::system_clock::time_point time_point;
+    ss >> date::parse("%F %T", time_point);
+    return time_point;
 }

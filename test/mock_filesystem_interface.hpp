@@ -44,6 +44,7 @@ class MockFilesystemInterface : public winss::FilesystemInterface {
     MOCK_CONST_METHOD1(Remove, bool(const fs::path& path));
     MOCK_CONST_METHOD1(FileExists, bool(const fs::path& path));
     MOCK_CONST_METHOD1(Absolute, fs::path(const fs::path& path));
+    MOCK_CONST_METHOD1(CanonicalUncPath, fs::path(const fs::path& path));
     MOCK_CONST_METHOD1(GetDirectories, std::vector<fs::path>(
         const fs::path& path));
     MOCK_CONST_METHOD1(GetFiles, std::vector<fs::path>(

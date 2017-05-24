@@ -18,3 +18,8 @@ developed by Niels Lohmann, licensed under the MIT License.
 
 This product includes software (http://optionparser.sourceforge.net/)
 developed by Matthias S. Benkmann, licensed under the MIT license.
+
+## A date and time library based on the C++11 (and beyond) <chrono> header
+
+This product includes software (https://github.com/HowardHinnant/date)
+developed by Howard E. Hinnant, licensed under the MIT license.

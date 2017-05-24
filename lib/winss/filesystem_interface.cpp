@@ -15,6 +15,7 @@
  */
 
 #include "filesystem_interface.hpp"
+#include <windows.h>
 #include <filesystem>
 #include <string>
 #include <fstream>
@@ -152,6 +153,45 @@ fs::path winss::FilesystemInterface::Absolute(const fs::path& path) const {
         VLOG(1) << "Could not get canonical path " << path << ": " << e.what();
         return path;
     }
+}
+
+fs::path winss::FilesystemInterface::CanonicalUncPath(
+    const fs::path& path) const {
+    auto path_str = path.string();
+    HANDLE file = CreateFileA(
+        path_str.data(),       // filename
+        GENERIC_READ,          // open for reading
+        FILE_SHARE_READ,       // share for reading
+        NULL,                  // default security
+        OPEN_EXISTING,         // existing file only
+        FILE_FLAG_BACKUP_SEMANTICS,  // normal file
+        NULL);                 // no attr. template
+
+    if (file == INVALID_HANDLE_VALUE) {
+        CloseHandle(file);
+        return Absolute(path);
+    }
+
+    std::vector<char> pathbuf;
+    DWORD bufsize = static_cast<DWORD>(path_str.size() * 1.2);
+
+    while (true) {
+        pathbuf.resize(bufsize + 1);
+        DWORD len = GetFinalPathNameByHandleA(file, &pathbuf[0], bufsize,
+            VOLUME_NAME_DOS);
+
+        if (len == 0) {
+            CloseHandle(file);
+            return Absolute(path);
+        }
+
+        if (len <= bufsize)
+            break;
+    }
+
+    CloseHandle(file);
+    fs::path unc_path(pathbuf.begin(), pathbuf.end());
+    return unc_path;
 }
 
 std::vector<fs::path> winss::FilesystemInterface::GetDirectories(

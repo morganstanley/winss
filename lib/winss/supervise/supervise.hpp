@@ -188,7 +188,8 @@ class SuperviseTmpl {
      */
     virtual bool StartRun() {
         if (state.remaining_count == 0) {
-            return false;
+            // Return true to prevent false positive unable to spawn message.
+            return true;
         }
 
         VLOG(2) << "Starting run process";
@@ -286,6 +287,7 @@ class SuperviseTmpl {
 
         waiting = false;
         int restart = 0;
+        DWORD wait = kBusyWait;
 
         if (state.is_up) {
             if (state.is_run_process) {
@@ -314,6 +316,10 @@ class SuperviseTmpl {
 
                     state.is_up = false;
                     state.pid = 0;
+
+                    if (process.GetExitCode() == kDownExitCode) {
+                        state.remaining_count = 0;
+                    }
                 }
 
                 restart = 2;
@@ -321,6 +327,8 @@ class SuperviseTmpl {
         } else if (!Complete()) {
             if (!StartRun()) {
                 restart = 1;
+                wait = kRunFailedWait;
+                LOG(WARNING) << "Unable to spawn ./run - waiting 10 seconds";
             }
         }
 
@@ -329,9 +337,9 @@ class SuperviseTmpl {
         }
 
         if (restart && !Complete() && state.remaining_count != 0) {
-            VLOG(2) << "Waiting for: " << kBusyWait;
+            VLOG(2) << "Waiting for: " << wait;
             waiting = true;
-            multiplexer->AddTimeoutCallback(kBusyWait, [&](
+            multiplexer->AddTimeoutCallback(wait, [&](
                 winss::WaitMultiplexer&) {
                 Triggered(true);
             }, kTimeoutGroup);
@@ -379,12 +387,15 @@ class SuperviseTmpl {
     static const int kMutexTaken = 100;  /**< Service dir in use error. */
     static const int kFatalExitCode = 111;  /**< Something went wrong. */
     static const int kSignaledExitCode = 256;  /**< Signaled to exit. */
+    static const int kDownExitCode = 125;  /**< Signal down. */
     static const DWORD kCommandTimeout = 5000;  /**< Default timeout 5s. */
     static const DWORD kBusyWait = 1000;  /**< Busy wait 1s. */
+    static const DWORD kRunFailedWait = 10000;  /**< Run failed wait 10s. */
     /** Mutex name. */
     static constexpr const char kMutexName[10] = "supervise";
     static constexpr const char kRunFile[4] = "run";  /**< Run file. */
-    static constexpr const char kFinishFile[7] = "finish";  /**< Finish file. */
+    /** Finish file. */
+    static constexpr const char kFinishFile[7] = "finish";
     static constexpr const char kDownFile[5] = "down";  /**< Down file. */
     static constexpr const char kEnvDir[4] = "env";  /**< Env directory. */
     /** Timeout finish file. */

@@ -47,7 +47,11 @@ bool winss::LogStreamWriter::Open(fs::path log_path) {
 }
 
 void winss::LogStreamWriter::Write(const std::string& line) {
-    file_stream << line << std::endl;
+    file_stream << line;
+}
+
+void winss::LogStreamWriter::WriteLine() {
+    file_stream << std::endl;
 }
 
 std::streamoff winss::LogStreamWriter::GetPos() {
@@ -55,6 +59,7 @@ std::streamoff winss::LogStreamWriter::GetPos() {
 }
 
 void winss::LogStreamWriter::Close() {
+    file_stream.flush();
     file_stream.close();
 }
 

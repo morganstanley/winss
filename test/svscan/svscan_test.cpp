@@ -82,7 +82,7 @@ TEST_F(SvScanTest, Init) {
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
     MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0);
 
-    EXPECT_CALL(*file, DirectoryExists(_))
+    EXPECT_CALL(*file, ChangeDirectory(_))
         .WillOnce(Return(true));
 
     EXPECT_CALL(*file, GetDirectories(_))
@@ -107,7 +107,7 @@ TEST_F(SvScanTest, InitDirNotExists) {
 
     EXPECT_CALL(multiplexer, Stop(_)).Times(1);
 
-    EXPECT_CALL(*file, DirectoryExists(_))
+    EXPECT_CALL(*file, ChangeDirectory(_))
         .WillOnce(Return(false));
 
     EXPECT_CALL(*svscan.GetMutex(), HasLock())
@@ -123,7 +123,7 @@ TEST_F(SvScanTest, InitLockTaken) {
 
     EXPECT_CALL(multiplexer, Stop(_)).Times(1);
 
-    EXPECT_CALL(*file, DirectoryExists(_))
+    EXPECT_CALL(*file, ChangeDirectory(_))
         .WillOnce(Return(true));
 
     EXPECT_CALL(*svscan.GetMutex(), HasLock())

@@ -24,7 +24,7 @@
 namespace fs = std::experimental::filesystem;
 
 winss::PipeName::PipeName(fs::path path) {
-    path = FILESYSTEM.Absolute(path);
+    path = FILESYSTEM.CanonicalUncPath(path);
     name = "\\\\.\\pipe\\" + winss::SHA256::CalculateDigest(path.string());
 }
 

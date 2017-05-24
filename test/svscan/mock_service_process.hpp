@@ -34,20 +34,19 @@ class MockServiceProcess : public virtual winss::ServiceProcess {
         ON_CALL(*this, GetServiceDir()).WillByDefault(ReturnRef(service_dir));
     }
 
-    MockServiceProcess(const fs::path& service_dir, bool is_log) :
-        winss::ServiceProcess::ServiceProcessTmpl(service_dir, is_log) {}
+    explicit MockServiceProcess(const fs::path& service_dir) :
+        winss::ServiceProcess::ServiceProcessTmpl(service_dir) {}
 
     MockServiceProcess(const MockServiceProcess&) = delete;
 
     MockServiceProcess(MockServiceProcess&& p) :
         winss::ServiceProcess::ServiceProcessTmpl(std::move(p)) {}
 
-    MOCK_CONST_METHOD0(IsFlagged, bool());
     MOCK_CONST_METHOD0(GetServiceDir, const fs::path&());
-    MOCK_CONST_METHOD0(Reset, void());
+    MOCK_CONST_METHOD0(IsCreated, bool());
 
-    MOCK_METHOD1(Start, void(const winss::ServicePipes& pipes));
-    MOCK_METHOD1(Close, bool(bool ignore_flagged));
+    MOCK_METHOD2(Start, void(const winss::ServicePipes& pipes, bool consumer));
+    MOCK_METHOD0(Close, void());
 
     void operator=(const MockServiceProcess&) = delete;
 
@@ -60,8 +59,8 @@ class NiceMockServiceProcess : public NiceMock<MockServiceProcess> {
  public:
     NiceMockServiceProcess() {}
 
-    NiceMockServiceProcess(const fs::path& service_dir, bool is_log) :
-        winss::ServiceProcess::ServiceProcessTmpl(service_dir, is_log) {}
+    explicit NiceMockServiceProcess(const fs::path& service_dir) :
+        winss::ServiceProcess::ServiceProcessTmpl(service_dir) {}
 
     NiceMockServiceProcess(const NiceMockServiceProcess&) = delete;
 

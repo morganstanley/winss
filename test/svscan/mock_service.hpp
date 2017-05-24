@@ -35,8 +35,8 @@ class MockService : public virtual winss::Service {
         ON_CALL(*this, GetName()).WillByDefault(ReturnRef(name));
     }
 
-    MockService(std::string name, const fs::path& service_dir) :
-        winss::Service::ServiceTmpl(name, service_dir) {}
+    explicit MockService(std::string name) :
+        winss::Service::ServiceTmpl(name) {}
 
     MockService(const MockService&) = delete;
 
@@ -44,6 +44,8 @@ class MockService : public virtual winss::Service {
         winss::Service::ServiceTmpl(std::move(s)) {}
 
     MOCK_CONST_METHOD0(GetName, const std::string&());
+    MOCK_CONST_METHOD0(IsFlagged, bool());
+
     MOCK_METHOD0(Reset, void());
     MOCK_METHOD0(Check, void());
     MOCK_METHOD1(Close, bool(bool ignore_flagged));
@@ -59,8 +61,8 @@ class NiceMockService : public NiceMock<MockService> {
  public:
     NiceMockService() {}
 
-    NiceMockService(std::string name, const fs::path& service_dir) :
-        winss::Service::ServiceTmpl(name, service_dir) {}
+    explicit NiceMockService(std::string name) :
+        winss::Service::ServiceTmpl(name) {}
 
     NiceMockService(const NiceMockService&) = delete;
 
