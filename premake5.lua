@@ -41,7 +41,7 @@ workspace "WindowsSupervisionSuite"
     git_commit = os.getenv("GIT_COMMIT")
     if git_commit then
       defines("GIT_COMMIT=\"" .. git_commit .. "\"")
-      defines("GIT_COMMIT_SHORT=\"" .. string.sub(git_commit, 1, 8) .. "\"")
+      defines("GIT_COMMIT_SHORT=\"" .. string.sub(git_commit, 1, 7) .. "\"")
     end
 
     project "winss"

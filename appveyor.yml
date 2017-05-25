@@ -86,9 +86,10 @@ deploy:
   auth_token:
     secure: mSvsAjNV2gCX/XNeDFuwXYc6w7BIZo4eY6sjS9hZnlGnpYPproDWjzirT5z86znF
   artifact: winss
-  draft: false
+  draft: true
   prerelease: false
   on:
+    appveyor_repo_name: Morgan-Stanley/winss
     appveyor_repo_tag: true
     appveyor_repo_tag_name: /^ms/
     configuration: Release
