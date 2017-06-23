@@ -19,6 +19,7 @@
 
 #include <filesystem>
 #include <vector>
+#include "utils.hpp"
 
 namespace fs = std::experimental::filesystem;
 
@@ -36,7 +37,14 @@ class Environment {
      *
      * name=value\0
      */
-    virtual std::vector<char> ReadEnv() = 0;
+    virtual std::vector<char> ReadEnv();
+
+    /**
+     * Gets the environment source as key values.
+     * 
+     * \return The environment key value pairs.
+     */
+    virtual winss::env_t ReadEnvSource() = 0;
 
     /**
      * Default destructor
@@ -60,14 +68,11 @@ class EnvironmentDir : public Environment {
     explicit EnvironmentDir(fs::path env_dir);
 
     /**
-     * Reads The env dir source into an environment block for CreateProcess
-     *
-     * An environment block consists of a null-terminated block of
-     * null-terminated strings. Each string is in the following form:
-     *
-     * name=value\0
-     */
-    std::vector<char> ReadEnv();
+    * Gets the environment source as key values.
+    *
+    * \return The environment key value pairs.
+    */
+    winss::env_t ReadEnvSource() override;
 };
 }  // namespace winss
 

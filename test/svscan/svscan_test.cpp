@@ -23,6 +23,7 @@
 #include "winss/not_owning_ptr.hpp"
 #include "../mock_interface.hpp"
 #include "../mock_filesystem_interface.hpp"
+#include "../mock_windows_interface.hpp"
 #include "../mock_wait_multiplexer.hpp"
 #include "../mock_path_mutex.hpp"
 #include "../mock_process.hpp"
@@ -33,6 +34,7 @@ namespace fs = std::experimental::filesystem;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
+using ::testing::StrEq;
 
 namespace winss {
 class SvScanTest : public testing::Test {
@@ -65,6 +67,11 @@ class MockedSvScan : public winss::SvScanTmpl<winss::NiceMockService,
     MockedSvScan(const MockedSvScan&) = delete;
     MockedSvScan(MockedSvScan&&) = delete;
 
+    static void ReadEnv() {
+        return winss::SvScanTmpl<winss::NiceMockService,
+            winss::MockPathMutex, HookedMockProcess>::ReadEnv();
+    }
+
     std::vector<winss::NiceMockService>* GetServices() {
         return &services;
     }
@@ -88,6 +95,9 @@ TEST_F(SvScanTest, Init) {
     EXPECT_CALL(*file, GetDirectories(_))
         .WillOnce(Return(std::vector<fs::path>()));
 
+    EXPECT_CALL(*file, Read(_)).WillOnce(Return(""));
+    EXPECT_CALL(*file, GetFiles(_)).WillOnce(Return(std::vector<fs::path>()));
+
     EXPECT_CALL(*svscan.GetMutex(), HasLock())
         .WillOnce(Return(false))
         .WillOnce(Return(true))
@@ -98,6 +108,27 @@ TEST_F(SvScanTest, Init) {
 
     multiplexer.mock_init_callbacks.at(0)(multiplexer);
     multiplexer.mock_init_callbacks.at(0)(multiplexer);
+}
+
+
+TEST_F(SvScanTest, ReadEnv) {
+    MockInterface<winss::MockWindowsInterface> windows;
+    MockInterface<winss::MockFilesystemInterface> file;
+
+    EXPECT_CALL(*file, Read(_))
+        .WillOnce(Return(""))
+        .WillOnce(Return("value"))
+        .WillOnce(Return(""));
+    EXPECT_CALL(*file, GetFiles(_))
+        .WillOnce(Return(std::vector<fs::path>{
+            fs::path("test1"), fs::path("test2")
+        }));
+
+    EXPECT_CALL(*windows, SetEnvironmentVariable(
+        StrEq("test1"), StrEq("value")));
+    EXPECT_CALL(*windows, SetEnvironmentVariable(StrEq("test2"), nullptr));
+
+    MockedSvScan::ReadEnv();
 }
 
 TEST_F(SvScanTest, InitDirNotExists) {

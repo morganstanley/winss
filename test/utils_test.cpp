@@ -18,6 +18,7 @@
 #include <chrono>
 #include <map>
 #include "gtest/gtest.h"
+#include "gmock/gmock-matchers.h"
 #include "winss/winss.hpp"
 #include "winss/utils.hpp"
 
@@ -46,6 +47,47 @@ TEST_F(UtilsTest, GetEnvironmentVariables) {
     auto env = winss::Utils::GetEnvironmentVariables();
 
     EXPECT_NE(env.end(), env.find("path"));
+}
+
+TEST_F(UtilsTest, GetEnvironmentString) {
+    winss::env_t env;
+
+    env["key1"] = "value1";
+    env["key2"] = "value2";
+
+    auto env_vec = winss::Utils::GetEnvironmentString(env);
+
+    std::vector<char> cmp_env_vec = {
+        'k', 'e', 'y', '1', '=', 'v', 'a', 'l', 'u', 'e', '1', '\0',
+        'k', 'e', 'y', '2', '=', 'v', 'a', 'l', 'u', 'e', '2', '\0',
+        '\0'
+    };
+
+    ASSERT_THAT(cmp_env_vec, ::testing::ElementsAreArray(env_vec));
+}
+
+TEST_F(UtilsTest, SplitStringMultiple) {
+    std::string input = R"(
+string1
+string2
+string3
+)";
+
+    std::vector<std::string> strings = winss::Utils::SplitString(input);
+
+    EXPECT_EQ(3, strings.size());
+    EXPECT_EQ("string1", strings.at(0));
+    EXPECT_EQ("string2", strings.at(1));
+    EXPECT_EQ("string3", strings.at(2));
+}
+
+TEST_F(UtilsTest, SplitStringSingle) {
+    std::string input = "string1";
+
+    std::vector<std::string> strings = winss::Utils::SplitString(input);
+
+    EXPECT_EQ(1, strings.size());
+    EXPECT_EQ("string1", strings.at(0));
 }
 
 TEST_F(UtilsTest, TimeISOString) {

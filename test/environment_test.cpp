@@ -34,33 +34,36 @@ using ::testing::Return;
 namespace winss {
 class EnvrionmentTest : public testing::Test {
 };
+class MockEnvironment: public winss::Environment {
+    winss::env_t ReadEnvSource() override {
+        winss::env_t env;
 
-TEST_F(EnvrionmentTest, ReadEnvironmentDir) {
+        env["test1"] = "value1";
+        env["test2"] = "value2";
+        env["path"] = "";
+
+        return env;
+    }
+};
+class MockEnvironmentEmpty : public winss::Environment {
+    winss::env_t ReadEnvSource() override {
+        winss::env_t env;
+        return env;
+    }
+};
+
+TEST_F(EnvrionmentTest, ReadEnv) {
     MockInterface<winss::MockWindowsInterface> windows;
-    MockInterface<winss::MockFilesystemInterface> file;
-    winss::EnvironmentDir env_dir("test");
+    MockEnvironment env;
 
-    char* env_array = "test=1\0path=123\0\0";
+    char* env_array = "other=value\0path=123\0\0";
 
     EXPECT_CALL(*windows, GetEnvironmentStrings())
         .WillOnce(Return(env_array));
 
-    EXPECT_CALL(*file, DirectoryExists(_)).WillOnce(Return(true));
+    auto env_vector = env.ReadEnv();
 
-    EXPECT_CALL(*file, GetFiles(_)).WillOnce(Return(std::vector<fs::path>({
-        "path",
-        "testing_1",
-        ".testing_2",
-        "testing=3"
-    })));
-
-    EXPECT_CALL(*file, Read(_))
-        .WillOnce(Return(""))
-        .WillOnce(Return("value_1"));
-
-    auto env_vector = env_dir.ReadEnv();
-
-    const char *test1 = "testing_1=value_1";
+    const char *test1 = "test1=value1";
     EXPECT_NE(env_vector.end(),
         std::search(
             env_vector.begin(),
@@ -75,23 +78,74 @@ TEST_F(EnvrionmentTest, ReadEnvironmentDir) {
             test2, test2 + strlen(test2)));
 }
 
-TEST_F(EnvrionmentTest, ReadEnvironmentDirNotExists) {
+TEST_F(EnvrionmentTest, ReadEnvEmpty) {
+    MockInterface<winss::MockWindowsInterface> windows;
+    MockEnvironmentEmpty env;
+
+    EXPECT_CALL(*windows, GetEnvironmentStrings()).Times(0);
+
+    auto env_vector = env.ReadEnv();
+
+    EXPECT_TRUE(env_vector.empty());
+}
+
+TEST_F(EnvrionmentTest, ReadEnvironmentDir) {
     MockInterface<winss::MockWindowsInterface> windows;
     MockInterface<winss::MockFilesystemInterface> file;
     winss::EnvironmentDir env_dir("test");
 
-    char* env_array = "test=1\0path=123\0\0";
+    EXPECT_CALL(*file, Read(_))
+        .WillOnce(Return(""))
+        .WillOnce(Return("value1"))
+        .WillOnce(Return("value2"))
+        .WillOnce(Return(""));
 
-    EXPECT_CALL(*windows, GetEnvironmentStrings())
-        .WillOnce(Return(env_array));
+    EXPECT_CALL(*file, GetFiles(_))
+        .WillOnce(Return(std::vector<fs::path>{"key1", "key2", "key3"}));
 
-    EXPECT_CALL(*file, DirectoryExists(_)).WillOnce(Return(false));
+    auto env = env_dir.ReadEnvSource();
 
-    EXPECT_CALL(*file, GetFiles(_)).Times(0);
-    EXPECT_CALL(*file, Read(_)).Times(0);
+    EXPECT_EQ(3, env.size());
+    EXPECT_EQ("value1", env["key1"]);
+    EXPECT_EQ("value2", env["key2"]);
+    EXPECT_EQ("", env["key3"]);
+}
 
-    auto env_vector = env_dir.ReadEnv();
+TEST_F(EnvrionmentTest, ReadEnvironmentDirFile) {
+    MockInterface<winss::MockWindowsInterface> windows;
+    MockInterface<winss::MockFilesystemInterface> file;
+    winss::EnvironmentDir env_dir("test");
 
-    EXPECT_TRUE(env_vector.empty());
+    EXPECT_CALL(*file, Read(_))
+        .WillOnce(Return("test1\ntest2\n"))
+        .WillOnce(Return("value1"))
+        .WillOnce(Return("value2"))
+        .WillOnce(Return(""));
+
+    EXPECT_CALL(*file, GetFiles(fs::path("test1")))
+        .WillOnce(Return(std::vector<fs::path>{"key1"}));
+
+    EXPECT_CALL(*file, GetFiles(fs::path("test2")))
+        .WillOnce(Return(std::vector<fs::path>{"key2", "key3"}));
+
+    auto env = env_dir.ReadEnvSource();
+
+    EXPECT_EQ(3, env.size());
+    EXPECT_EQ("value1", env["key1"]);
+    EXPECT_EQ("value2", env["key2"]);
+    EXPECT_EQ("", env["key3"]);
+}
+
+TEST_F(EnvrionmentTest, ReadEnvironmentDirSourceNotExists) {
+    MockInterface<winss::MockWindowsInterface> windows;
+    MockInterface<winss::MockFilesystemInterface> file;
+    winss::EnvironmentDir env_dir("test");
+
+    EXPECT_CALL(*file, Read(_)).WillOnce(Return(""));
+    EXPECT_CALL(*file, GetFiles(_)).WillOnce(Return(std::vector<fs::path>()));
+
+    auto env = env_dir.ReadEnvSource();
+
+    EXPECT_TRUE(env.empty());
 }
 }  // namespace winss
