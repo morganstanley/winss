@@ -34,13 +34,13 @@ std::string winss::FilesystemInterface::Read(const fs::path& path) const {
         VLOG(5) << "Reading file " << path;
 
         std::ifstream infile{ path };
-        std::string cmd{
+        std::string value{
             std::istreambuf_iterator<char>(infile),
             std::istreambuf_iterator<char>()
         };
         infile.close();
 
-        return cmd;
+        return value;
     } catch (const std::exception& e) {
         VLOG(1) << "Failed to read file " << path << ": " << e.what();
     }

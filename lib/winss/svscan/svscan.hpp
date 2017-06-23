@@ -25,6 +25,7 @@
 #include <string>
 #include "easylogging/easylogging++.hpp"
 #include "../windows_interface.hpp"
+#include "../environment.hpp"
 #include "../filesystem_interface.hpp"
 #include "../not_owning_ptr.hpp"
 #include "../wait_multiplexer.hpp"
@@ -83,7 +84,29 @@ class SvScanTmpl {
 
         FILESYSTEM.CreateDirectory(scan_dir / fs::path(kSvscanDir));
 
+        ReadEnv();
+
         Scan(false);
+    }
+
+    /**
+     * Reads the env directory into the current environment.
+     */
+    static void ReadEnv() {
+        auto env_dir = winss::EnvironmentDir(kEnvDir);
+        auto env = env_dir.ReadEnvSource();
+
+        for (const auto& kv : env) {
+            if (kv.second.empty()) {
+                WINDOWS.SetEnvironmentVariable(
+                    const_cast<char *>(kv.first.data()),
+                    nullptr);
+            } else {
+                WINDOWS.SetEnvironmentVariable(
+                    const_cast<char *>(kv.first.data()),
+                    const_cast<char *>(kv.second.data()));
+            }
+        }
     }
 
     /**
@@ -171,6 +194,8 @@ class SvScanTmpl {
     /** The directory for svscan data. */
     static constexpr const char kSvscanDir[14] = ".winss-svscan";
     static constexpr const char kFinishFile[7] = "finish";  /**< Finish file. */
+    /** Env directory. */
+    static constexpr const char kEnvDir[18] = ".winss-svscan\\env";
 
     /**
      * SvScan constructor.

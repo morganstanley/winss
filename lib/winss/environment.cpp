@@ -28,47 +28,58 @@
 
 namespace fs = std::experimental::filesystem;
 
-winss::EnvironmentDir::EnvironmentDir(fs::path env_dir) : env_dir(env_dir) {}
+std::vector<char> winss::Environment::ReadEnv() {
+    auto env_source = this->ReadEnvSource();
+    if (env_source.empty()) {
+        return std::vector<char>{};
+    }
 
-std::vector<char> winss::EnvironmentDir::ReadEnv() {
     winss::env_t env = winss::Utils::GetEnvironmentVariables();
 
-    std::vector<char> env_string;
-    if (!FILESYSTEM.DirectoryExists(env_dir)) {
-        VLOG(4) << "Env folder does not exist in service dir";
-        return env_string;
-    }
-
-    VLOG(3) << "Using env folder in service dir";
-
-    for (auto& file : FILESYSTEM.GetFiles(env_dir)) {
-        std::string key = file.filename().string();
-
-        if (key.front() == L'.' || key.find('=') != std::string::npos) {
-            VLOG(4) << "Skipping file " << file;
-            continue;
-        }
-
-        VLOG(4) << "Found env file " << file;
-
-        std::string value = FILESYSTEM.Read(file);
-
-        if (value.empty()) {
-            env.erase(key);
+    for (auto const &kv : env_source) {
+        if (kv.second.empty()) {
+            env.erase(kv.first);
         } else {
-            env[key] = winss::Utils::ExpandEnvironmentVariables(value);
+            env[kv.first] =
+                winss::Utils::ExpandEnvironmentVariables(kv.second);
         }
     }
 
-    for (auto& kv : env) {
-        std::copy(kv.first.begin(), kv.first.end(),
-            std::back_inserter(env_string));
-        env_string.push_back('=');
-        std::copy(kv.second.begin(), kv.second.end(),
-            std::back_inserter(env_string));
-        env_string.push_back('\0');
-    }
-    env_string.push_back('\0');
+    return winss::Utils::GetEnvironmentString(env);
+}
 
-    return env_string;
+winss::EnvironmentDir::EnvironmentDir(fs::path env_dir) : env_dir(env_dir) {}
+
+winss::env_t winss::EnvironmentDir::ReadEnvSource() {
+    winss::env_t env;
+
+    std::vector<fs::path> dirs;
+    std::string env_file = FILESYSTEM.Read(env_dir);
+    if (!env_file.empty()) {
+        VLOG(5) << "Found env file rather than dir: " << env_file;
+        for (const std::string& str : winss::Utils::SplitString(env_file)) {
+            dirs.push_back(fs::path(str));
+        }
+    } else {
+        dirs.push_back(env_dir);
+    }
+
+    for (const auto& dir : dirs) {
+        VLOG(5) << "Inspecting env dir: " << dir;
+
+        for (auto& file : FILESYSTEM.GetFiles(dir)) {
+            std::string key = file.filename().string();
+
+            if (key.front() == L'.' || key.find('=') != std::string::npos) {
+                VLOG(4) << "Skipping file " << file;
+                continue;
+            }
+
+            VLOG(4) << "Found env file " << file;
+
+            env[key] = FILESYSTEM.Read(file);
+        }
+    }
+
+    return env;
 }

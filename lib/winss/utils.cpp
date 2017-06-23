@@ -17,6 +17,7 @@
 #define NOMINMAX
 #include "utils.hpp"
 #include <windows.h>
+#include <algorithm>
 #include <sstream>
 #include <iomanip>
 #include <memory>
@@ -65,6 +66,39 @@ winss::env_t winss::Utils::GetEnvironmentVariables() {
     }
 
     return env;
+}
+
+std::vector<char> winss::Utils::GetEnvironmentString(
+    const winss::env_t& env) {
+    std::vector<char> env_string;
+
+    for (auto& kv : env) {
+        std::copy(kv.first.begin(), kv.first.end(),
+            std::back_inserter(env_string));
+        env_string.push_back('=');
+        std::copy(kv.second.begin(), kv.second.end(),
+            std::back_inserter(env_string));
+        env_string.push_back('\0');
+    }
+    env_string.push_back('\0');
+
+    return env_string;
+}
+
+std::vector<std::string> winss::Utils::SplitString(
+    const std::string& input) {
+    std::vector<std::string> output;
+
+    std::stringstream ss(input);
+    std::string to;
+
+    while (std::getline(ss, to)) {
+        if (!to.empty()) {
+            output.push_back(to);
+        }
+    }
+
+    return output;
 }
 
 std::string winss::Utils::ConvertToISOString(

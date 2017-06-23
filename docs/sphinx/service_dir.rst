@@ -78,6 +78,9 @@ environment variables. For example a file named **env/USER** with the contents
 variables. Using this you can append to the **PATH** rather than overwriting
 it.
 
+Multiple `env`_ dirs are supported if you make `env`_ a file and put the paths
+to each `env`_ dir into the file separated by a new line.
+
 .. _log:
 
 log

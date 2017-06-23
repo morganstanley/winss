@@ -20,11 +20,13 @@
 #include <vector>
 #include "gmock/gmock.h"
 #include "winss/environment.hpp"
+#include "winss/utils.hpp"
 
 namespace winss {
 class MockEnviornment : public winss::Environment {
  public:
     MOCK_METHOD0(ReadEnv, std::vector<char>());
+    MOCK_METHOD0(ReadEnvSource, winss::env_t());
 };
 }  // namespace winss
 

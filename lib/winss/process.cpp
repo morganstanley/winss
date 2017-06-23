@@ -151,8 +151,12 @@ bool winss::Process::Create(const ProcessParams& params) {
 
     LPVOID env_ptr = nullptr;
     if (!env_string.empty()) {
-        VLOG(4) << "Replacing env for cmd '" << params.cmd << "'";
-        env_ptr = &env_string[0];
+        VLOG(4) << "Using modificed env of size "
+                << env_string.size()
+                << " for cmd '"
+                << params.cmd
+                << "'";
+        env_ptr = env_string.data();
     }
 
     const char* dir = nullptr;

@@ -35,6 +35,8 @@ interface to control its state.
   monitoring this :term:`service`.
 - If the default state is *up* and not :ref:`down` then :ref:`winss-supervise`
   starts the :ref:`run` process.
+- If the :ref:`env` dir exists then a new environment block will be constructed
+  and the :ref:`run` process will be started with the new environment block.
 - If the :ref:`run` process fails to start then it will wait 10 seconds
   before trying to start again. It does not execute :ref:`finish` on failure
   to execute :ref:`run`.
@@ -106,6 +108,8 @@ single :term:`service`. It is designed to be either the root or a branch of a
   :ref:`winss-svscan` creates it. However, it is recommended to already have a
   .winss-svscan subdirectory in your :term:`scan directory` directory, because
   :ref:`winss-svscan` may try to launch **.winss-svscan/finish** at some point.
+- If the :ref:`env` dir exists within **./.winss-svscan** then the current
+  environment will be applied to the scan process.
 - :ref:`winss-svscan` performs an initial scan of its scan directory.
 - :ref:`winss-svscan` then occasionally runs scans based on the timeout
   specified or asked to do so by :ref:`winss-svscanctl`.

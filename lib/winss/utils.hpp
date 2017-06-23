@@ -20,6 +20,7 @@
 #include <chrono>
 #include <string>
 #include <map>
+#include <vector>
 #include "case_ignore.hpp"
 
 namespace winss {
@@ -55,7 +56,24 @@ class Utils {
      *
      * \return The environment as a mapping of keys to values.
      */
-    static env_t GetEnvironmentVariables();
+    static winss::env_t GetEnvironmentVariables();
+
+    /**
+     * Gets a string for the given environment variables.
+     *
+     * \param env The environment key values.
+     * \return An environment string.
+     */
+    static std::vector<char> GetEnvironmentString(const winss::env_t& env);
+
+    /**
+     * Splits the string based on a new line.
+     * 
+     * \param input The string to split.
+     * \return A vector or strings from the input that no longer have new
+     *         lines in them.
+     */
+    static std::vector<std::string> SplitString(const std::string& input);
 
     /**
      * Convert the time to a ISO string.
