@@ -158,14 +158,14 @@ fs::path winss::FilesystemInterface::Absolute(const fs::path& path) const {
 fs::path winss::FilesystemInterface::CanonicalUncPath(
     const fs::path& path) const {
     auto path_str = path.string();
-    HANDLE file = CreateFileA(
-        path_str.data(),       // filename
-        GENERIC_READ,          // open for reading
-        FILE_SHARE_READ,       // share for reading
-        NULL,                  // default security
-        OPEN_EXISTING,         // existing file only
-        FILE_FLAG_BACKUP_SEMANTICS,  // normal file
-        NULL);                 // no attr. template
+    HANDLE file = CreateFile(
+        path_str.data(),
+        GENERIC_READ,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL,
+        OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS,
+        NULL);
 
     if (file == INVALID_HANDLE_VALUE) {
         CloseHandle(file);
@@ -173,11 +173,11 @@ fs::path winss::FilesystemInterface::CanonicalUncPath(
     }
 
     std::vector<char> pathbuf;
-    DWORD bufsize = static_cast<DWORD>(path_str.size() * 1.2);
+    DWORD bufsize = static_cast<DWORD>(path_str.size() * 2);
 
     while (true) {
         pathbuf.resize(bufsize + 1);
-        DWORD len = GetFinalPathNameByHandleA(file, &pathbuf[0], bufsize,
+        DWORD len = GetFinalPathNameByHandle(file, pathbuf.data(), bufsize,
             VOLUME_NAME_DOS);
 
         if (len == 0) {
@@ -187,6 +187,8 @@ fs::path winss::FilesystemInterface::CanonicalUncPath(
 
         if (len <= bufsize)
             break;
+
+        bufsize = len;
     }
 
     CloseHandle(file);
