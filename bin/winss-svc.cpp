@@ -94,8 +94,8 @@ const option::Descriptor usage[] = {
         "  -O, \t--onceatmost  \tOnly run supervised process once."
     },
     {
-        TIMEOUT, 0, "t", "timeout", option::Arg::Optional,
-        "  -t<ms>, \t--timeout=<ms>"
+        TIMEOUT, 0, "T", "timeout", option::Arg::Optional,
+        "  -T<ms>, \t--timeout=<ms>"
         "  \tWait timeout in milliseconds if -w is specified."
     },
     {

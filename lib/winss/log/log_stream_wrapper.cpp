@@ -37,7 +37,7 @@ std::string winss::LogStreamReader::GetLine() {
 bool winss::LogStreamWriter::Open(fs::path log_path) {
     try {
         file_stream.open(log_path,
-            std::ios::out | std::ios::in | std::ios::app);
+            std::ios::out | std::ios::in | std::ios::app | std::ios::ate);
     } catch (const std::exception&) {
         LOG(ERROR) << "Could not open log file " << log_path;
         return false;
