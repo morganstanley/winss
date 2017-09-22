@@ -283,7 +283,7 @@ In other words, it's used to control a supervised process.
                        Stop the process and supervisor.
      -O,          --onceatmost
                        Only run supervised process once.
-     -t<ms>,      --timeout=<ms>
+     -T<ms>,      --timeout=<ms>
                        Wait timeout in milliseconds if -w is specified.
      -w<dDur>,    --wait=<dDur>
                        Wait on (d)own/finishe(D)/(u)p/(r)estart.
