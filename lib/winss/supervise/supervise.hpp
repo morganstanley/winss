@@ -153,7 +153,7 @@ class SuperviseTmpl {
             return kCommandTimeout;
         }
 
-        return std::strtoul(timeout_finish.c_str(), nullptr, 10);
+        return std::strtoul(timeout_finish.data(), nullptr, 10);
     }
 
     /**
@@ -234,11 +234,14 @@ class SuperviseTmpl {
                 winss::WaitMultiplexer& m, const winss::HandleWrapper& handle) {
                 Triggered(false);
             });
-            multiplexer->AddTimeoutCallback(GetFinishTimeout(), [&](
-                winss::WaitMultiplexer&) {
-                Triggered(true);
-            }, kTimeoutGroup);
-            waiting = true;
+            DWORD timeout = GetFinishTimeout();
+            if (timeout > 0) {
+                multiplexer->AddTimeoutCallback(timeout, [&](
+                    winss::WaitMultiplexer&) {
+                    Triggered(true);
+                }, kTimeoutGroup);
+                waiting = true;
+            }
             state.is_up = true;
             return true;
         }
@@ -311,15 +314,15 @@ class SuperviseTmpl {
                 if (timeout) {
                     process.Terminate();
                     return;
-                } else {
-                    VLOG(2) << "Finish process ended";
+                }
 
-                    state.is_up = false;
-                    state.pid = 0;
+                VLOG(2) << "Finish process ended";
 
-                    if (process.GetExitCode() == kDownExitCode) {
-                        state.remaining_count = 0;
-                    }
+                state.is_up = false;
+                state.pid = 0;
+
+                if (process.GetExitCode() == kDownExitCode) {
+                    state.remaining_count = 0;
                 }
 
                 restart = 2;
