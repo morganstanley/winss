@@ -26,16 +26,16 @@ workspace "WindowsSupervisionSuite"
 
     parts = string.explode(build_version, '[.-]+')
     if (table.getn(parts) >= 1) then
-      defines("VERSION_MAJOR=" .. parts[1] .. "")
+      defines("VERSION_MAJOR=" .. tonumber(parts[1]) .. "")
     end
     if (table.getn(parts) >= 2) then
-      defines("VERSION_MINOR=" .. parts[2] .. "")
+      defines("VERSION_MINOR=" .. tonumber(parts[2]) .. "")
     end
     if (table.getn(parts) >= 3) then
-      defines("VERSION_REVISION=" .. parts[3] .. "")
+      defines("VERSION_REVISION=" .. tonumber(parts[3]) .. "")
     end
     if (table.getn(parts) >= 4) then
-      defines("VERSION_BUILD=" .. parts[4] .. "")
+      defines("VERSION_BUILD=" .. tonumber(parts[4]) .. "")
     end
 
     git_commit = os.getenv("GIT_COMMIT")

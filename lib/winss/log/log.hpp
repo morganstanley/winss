@@ -181,16 +181,19 @@ class LogTmpl {
             return kFatalExitCode;
         }
 
+        unsigned int size = 0;
         while (!reader->IsEOF()) {
             std::streamoff pos = writer->GetPos();
 
-            if (pos > settings.file_size) {
+            if (pos > size) {
                 if (!Rotate()) {
                     return kFatalExitCode;
                 }
 
                 CleanArchives();
             }
+
+            size = settings.file_size;
 
             std::string line = reader->GetLine();
 
