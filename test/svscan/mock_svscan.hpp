@@ -32,7 +32,8 @@ class MockSvScan : public winss::SvScan {
  public:
     MockSvScan(winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer,
         const fs::path& scan_dir, DWORD rescan) :
-        winss::SvScan::SvScanTmpl(multiplexer, scan_dir, rescan) {}
+        winss::SvScan::SvScanTmpl(multiplexer, scan_dir, rescan, false,
+            winss::EventWrapper()) {}
 
     MockSvScan(const MockSvScan&) = delete;
     MockSvScan(MockSvScan&&) = delete;
@@ -42,7 +43,7 @@ class MockSvScan : public winss::SvScan {
     MOCK_METHOD0(Timeout, void());
     MOCK_METHOD1(Exit, void(bool close_services));
 
-    void operator=(const MockSvScan&) = delete;
+    MockSvScan& operator=(const MockSvScan&) = delete;
     MockSvScan& operator=(MockSvScan&&) = delete;
 };
 }  // namespace winss

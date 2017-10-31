@@ -45,7 +45,7 @@ class MockSupervise : public winss::Supervise {
     MOCK_METHOD0(Term, void());
     MOCK_METHOD0(Exit, void());
 
-    void operator=(const MockSupervise&) = delete;
+    MockSupervise& operator=(const MockSupervise&) = delete;
     MockSupervise& operator=(MockSupervise&&) = delete;
 };
 class MockSuperviseListener : public winss::SuperviseListener {

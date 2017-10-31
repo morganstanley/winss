@@ -20,7 +20,6 @@
 #include "winss/winss.hpp"
 #include "optionparser/optionparser.hpp"
 #include "easylogging/easylogging++.hpp"
-#include "winss/ctrl_handler.hpp"
 #include "winss/filesystem_interface.hpp"
 #include "winss/not_owning_ptr.hpp"
 #include "winss/wait_multiplexer.hpp"
@@ -28,6 +27,7 @@
 #include "winss/svscan/controller.hpp"
 #include "winss/pipe_server.hpp"
 #include "winss/pipe_name.hpp"
+#include "winss/ctrl_handler.hpp"
 #include "resource/resource.h"
 
 INITIALIZE_EASYLOGGINGPP
@@ -37,6 +37,7 @@ namespace fs = std::experimental::filesystem;
 struct Settings {
     fs::path scan_dir;
     DWORD rescan = INFINITE;
+    bool signals = false;
     int verbose_level = 0;
 };
 
@@ -56,7 +57,7 @@ struct Arg : public option::Arg {
     }
 };
 
-enum OptionIndex { UNKNOWN, HELP, VERSION, VERBOSE, TIMEOUT };
+enum OptionIndex { UNKNOWN, HELP, VERSION, VERBOSE, TIMEOUT, SIGNALS };
 const option::Descriptor usage[] = {
     {
         UNKNOWN, 0, "", "", Arg::None,
@@ -68,7 +69,7 @@ const option::Descriptor usage[] = {
         "  --help  \tPrint usage and exit."
     },
     {
-        VERSION, 0, "", "version", option::Arg::None,
+        VERSION, 0, "", "version", Arg::None,
         "  --version  \tPrint the current version of winss and exit."
     },
     {
@@ -78,6 +79,10 @@ const option::Descriptor usage[] = {
     {
         TIMEOUT, 0, "t", "timeout", Arg::Required,
         "  -t<rescan>, \t--timeout=<rescan>  \tSets the rescan timeout."
+    },
+    {
+        SIGNALS, 0, "s", "signals", Arg::None,
+        "  -s, \t--signals  \tDivert signals."
     },
     { 0, 0, 0, 0, 0, 0 }
 };
@@ -128,16 +133,6 @@ Settings ParseArgs(int argc, char* argv[]) {
         option::Option& opt = buffer[i];
 
         switch (opt.index()) {
-        case TIMEOUT:
-            try {
-                settings.rescan = std::strtoul(opt.arg, nullptr, 10);
-            } catch (const std::exception&) {
-                std::cerr
-                    << "Option "
-                    << opt.name
-                    << " requires a numeric argument";
-            }
-            break;
         case VERBOSE:
             if (opt.arg == nullptr) {
                 settings.verbose_level = el::base::consts::kMaxVerboseLevel;
@@ -151,6 +146,19 @@ Settings ParseArgs(int argc, char* argv[]) {
                         << " requires a numeric argument";
                 }
             }
+            break;
+        case TIMEOUT:
+            try {
+                settings.rescan = std::strtoul(opt.arg, nullptr, 10);
+            } catch (const std::exception&) {
+                std::cerr
+                    << "Option "
+                    << opt.name
+                    << " requires a numeric argument";
+            }
+            break;
+        case SIGNALS:
+            settings.signals = true;
             break;
         }
     }
@@ -177,7 +185,6 @@ int main(int argc, char* argv[]) {
     ConfigureLogger(settings);
 
     winss::WaitMultiplexer multiplexer;
-    multiplexer.AddCloseEvent(winss::GetCloseEvent(), 0);
 
     winss::PipeName pipe_name(settings.scan_dir, winss::SvScan::kMutexName);
     winss::InboundPipeServer inbound({
@@ -186,7 +193,7 @@ int main(int argc, char* argv[]) {
     });
 
     winss::SvScan svscan(winss::NotOwned(&multiplexer), settings.scan_dir,
-        settings.rescan);
+        settings.rescan, settings.signals, winss::GetCloseEvent());
     winss::SvScanController controller(winss::NotOwned(&svscan),
         winss::NotOwned(&inbound));
     return multiplexer.Start();

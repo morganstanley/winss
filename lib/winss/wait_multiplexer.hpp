@@ -205,8 +205,10 @@ class WaitMultiplexer {
     virtual void AddCloseEvent(const winss::EventWrapper& close_event,
         DWORD return_code);
 
-    void operator=(const WaitMultiplexer&) = delete;  /**< No copy. */
-    WaitMultiplexer& operator=(WaitMultiplexer&&) = delete;  /**< No move. */
+    /** No copy. */
+    WaitMultiplexer& operator=(const WaitMultiplexer&) = delete;
+    /** No move. */
+    WaitMultiplexer& operator=(WaitMultiplexer&&) = delete;
 };
 }  // namespace winss
 

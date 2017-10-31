@@ -59,6 +59,7 @@ enum SuperviseNotification {
     START,  /**< Supervisor starting. */
     RUN,  /**< Run process has started. */
     END,  /**< Run process has ended. */
+    BROKEN,  /** Permanent failure. */
     FINISHED,  /**< Finish process has ended. */
     EXIT  /**< Supervisor exiting. */
 };
@@ -199,9 +200,9 @@ class SuperviseTmpl {
 
         WINDOWS.SetEnvironmentVariable(kRunExitCodeEnvName, nullptr);
         if (Start(kRunFile)) {
-            multiplexer->AddTriggeredCallback(process.GetHandle(), [&](
+            multiplexer->AddTriggeredCallback(process.GetHandle(), [this](
                 winss::WaitMultiplexer& m, const winss::HandleWrapper& handle) {
-                Triggered(false);
+                this->Triggered(false);
             });
             state.is_run_process = true;
             state.is_up = true;
@@ -230,14 +231,14 @@ class SuperviseTmpl {
             std::to_string(state.exit_code).c_str());
 
         if (Start(kFinishFile)) {
-            multiplexer->AddTriggeredCallback(process.GetHandle(), [&](
+            multiplexer->AddTriggeredCallback(process.GetHandle(), [this](
                 winss::WaitMultiplexer& m, const winss::HandleWrapper& handle) {
-                Triggered(false);
+                this->Triggered(false);
             });
             DWORD timeout = GetFinishTimeout();
             if (timeout > 0) {
-                multiplexer->AddTimeoutCallback(timeout, [&](
-                    winss::WaitMultiplexer&) {
+                multiplexer->AddTimeoutCallback(timeout,
+                    [this](winss::WaitMultiplexer&) {
                     Triggered(true);
                 }, kTimeoutGroup);
                 waiting = true;
@@ -323,6 +324,7 @@ class SuperviseTmpl {
 
                 if (process.GetExitCode() == kDownExitCode) {
                     state.remaining_count = 0;
+                    NotifyAll(BROKEN);
                 }
 
                 restart = 2;
@@ -342,8 +344,8 @@ class SuperviseTmpl {
         if (restart && !Complete() && state.remaining_count != 0) {
             VLOG(2) << "Waiting for: " << wait;
             waiting = true;
-            multiplexer->AddTimeoutCallback(wait, [&](
-                winss::WaitMultiplexer&) {
+            multiplexer->AddTimeoutCallback(wait,
+                [this](winss::WaitMultiplexer&) {
                 Triggered(true);
             }, kTimeoutGroup);
         }
@@ -426,12 +428,12 @@ class SuperviseTmpl {
         state.exit_code = 0;
         state.pid = 0;
 
-        multiplexer->AddInitCallback([&](winss::WaitMultiplexer&) {
-            Init();
+        multiplexer->AddInitCallback([this](winss::WaitMultiplexer&) {
+            this->Init();
         });
 
-        multiplexer->AddStopCallback([&](winss::WaitMultiplexer&) {
-            Stop();
+        multiplexer->AddStopCallback([this](winss::WaitMultiplexer&) {
+            this->Stop();
         });
     }
 
@@ -559,7 +561,7 @@ class SuperviseTmpl {
         }
     }
 
-    void operator=(const SuperviseTmpl&) = delete;  /**< No copy. */
+    SuperviseTmpl& operator=(const SuperviseTmpl&) = delete;  /**< No copy. */
     SuperviseTmpl& operator=(SuperviseTmpl&&) = delete;  /**< No move. */
 };
 

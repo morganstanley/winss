@@ -36,14 +36,14 @@ bool winss::WaitTimeoutItem::operator<(const winss::WaitTimeoutItem& rhs)
 
 void winss::WaitMultiplexer::AddInitCallback(winss::Callback callback) {
     if (callback) {
-        init_callbacks.push_back(callback);
+        init_callbacks.push_back(std::move(callback));
     }
 }
 
 void winss::WaitMultiplexer::AddTriggeredCallback(
     const winss::HandleWrapper& handle, winss::TriggeredCallback callback) {
     if (handle.HasHandle() && callback) {
-        trigger_callbacks.emplace(handle, callback);
+        trigger_callbacks.emplace(handle, std::move(callback));
     }
 }
 
@@ -59,7 +59,7 @@ void winss::WaitMultiplexer::AddTimeoutCallback(DWORD timeout,
 
 void winss::WaitMultiplexer::AddStopCallback(winss::Callback callback) {
     if (callback) {
-        stop_callbacks.push_back(callback);
+        stop_callbacks.push_back(std::move(callback));
     }
 }
 

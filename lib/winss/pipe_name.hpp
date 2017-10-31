@@ -85,8 +85,9 @@ class PipeName {
      * Copy another pipe name to this pipe name.
      *
      * \param p The other pipe name.
+     * \return This pipe name.
      */
-    void operator=(const PipeName& p);
+     PipeName& operator=(const PipeName& p);
 
     /**
      * Move another pipe name to this pipe name.

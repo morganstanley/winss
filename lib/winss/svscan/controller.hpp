@@ -57,8 +57,10 @@ class SvScanController : public winss::PipeServerReceiveListener {
      */
     bool Received(const std::vector<char>& data);
 
-    void operator=(const SvScanController&) = delete;  /**< No copy. */
-    SvScanController& operator=(SvScanController&&) = delete;  /**< No move. */
+    /** No copy. */
+    SvScanController& operator=(const SvScanController&) = delete;
+    /** No move. */
+    SvScanController& operator=(SvScanController&&) = delete;
 };
 }  // namespace winss
 

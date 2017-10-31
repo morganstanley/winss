@@ -26,15 +26,31 @@ namespace winss {
  */
 class EventWrapper {
  private:
-    HANDLE handle;  /**< The handle to the event. */
+     winss::TrustedHandleWrapper handle;  /**< The handle to the event. */
 
  public:
     /**
-     * Creates the event.
+     * Creates the event wrapper.
      */
     EventWrapper();
-    EventWrapper(const EventWrapper&) = delete;  /**< No copy. */
-    EventWrapper(EventWrapper&&) = delete;  /**< No move. */
+
+    /**
+    * Copies the event wrapper.
+    *
+    * Any ownership rights will not be copied.
+    * 
+    * \param e The event wrapper to copy.
+    */
+    EventWrapper(const EventWrapper& e) = default;
+
+    /**
+    * Move the event wrapper.
+    *
+    * Any ownership rights will be moved
+    *
+    * \param e The event wrapper to move.
+    */
+    EventWrapper(EventWrapper&& e) = default;
 
     /**
      * Gets if the event is set or not.
@@ -58,13 +74,32 @@ class EventWrapper {
      */
     bool Set();
 
-    void operator=(const EventWrapper&) = delete;  /**< No copy. */
-    EventWrapper& operator=(EventWrapper&&) = delete;  /**< No move. */
+    /**
+    * Resets the event.
+    *
+    * \return True if the reset event succeeded.
+    */
+    bool Reset();
 
-     /**
-     * Clean up the event.
-     */
-    ~EventWrapper();
+    /**
+    * Copies the event wrapper.
+    *
+    * Any ownership rights will not be copied.
+    *
+    * \param e The event wrapper to copy.
+    * \return This event wrapper.
+    */
+    EventWrapper& operator=(const EventWrapper& e) = default;
+
+    /**
+    * Move the event wrapper.
+    *
+    * Any ownership rights will be moved
+    *
+    * \param e The event wrapper to move.
+    * \return This event wrapper.
+    */
+    EventWrapper& operator=(EventWrapper&& e) = default;
 };
 }  // namespace winss
 

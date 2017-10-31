@@ -32,6 +32,9 @@
 #include "../path_mutex.hpp"
 #include "../process.hpp"
 #include "../utils.hpp"
+#include "../handle_wrapper.hpp"
+#include "../event_wrapper.hpp"
+#include "../ctrl_handler.hpp"
 #include "service.hpp"
 
 namespace fs = std::experimental::filesystem;
@@ -57,6 +60,8 @@ class SvScanTmpl {
     TMutex mutex;  /**< The svscan global mutex. */
     bool exiting = false;  /**< Exiting flag. */
     bool close_on_exit = true;  /**< Option to close services on exit. */
+    bool signals = false;  /**< Use handlers for signals. */
+    winss::EventWrapper close_event;  /**< Event when to stop. */
 
     std::vector<TService> services;  /**< A list of services. */
 
@@ -148,39 +153,92 @@ class SvScanTmpl {
      */
     void Schedule() {
         if (rescan > 0 && rescan != INFINITE) {
-            multiplexer->AddTimeoutCallback(rescan, [&](
-                winss::WaitMultiplexer&) {
-                Scan(true);
+            multiplexer->AddTimeoutCallback(rescan,
+                [this](winss::WaitMultiplexer&) {
+                this->Scan(true);
             }, kTimeoutGroup);
         }
+    }
+
+    /**
+    * Handles a signal to terminate.
+    */
+    void Terminate() {
+        if (exiting) {
+            return;
+        }
+
+        if (!signals) {
+            multiplexer->Stop(0);
+            return;
+        }
+
+        /* Allow for other runs of the script. */
+        VLOG(5) << "Close event reset";
+        close_event.Reset();
+        multiplexer->AddTriggeredCallback(close_event.GetHandle(),
+            [this](winss::WaitMultiplexer& m, const winss::HandleWrapper& h) {
+            this->Terminate();
+        });
+
+        fs::path svscan_dir = scan_dir / fs::path(kSvscanDir);
+        fs::path sigterm_file = svscan_dir / fs::path(kSigTermFile);
+
+        std::string cmd = FILESYSTEM.Read(sigterm_file);
+        if (!cmd.empty()) {
+            VLOG(2) << "Starting SIGTERM process";
+
+            std::string expanded =
+                winss::Utils::ExpandEnvironmentVariables(cmd);
+
+            TProcess sigterm;
+            if (sigterm.Create(winss::ProcessParams{
+                expanded, false
+            })) {
+                return;
+            }
+        }
+
+        LOG(WARNING) << "Unable to spawn .winss-svscan/SIGTERM";
     }
 
     /**
      * Stops the svscan instance.
      */
     void Stop() {
-        if (!exiting) {
-            multiplexer->RemoveTimeoutCallback(kTimeoutGroup);
-            exiting = true;
-            if (close_on_exit) {
-                CloseAllServices(true);
-            }
+        if (exiting) {
+            return;
+        }
 
-            fs::path svscan_dir = scan_dir / fs::path(kSvscanDir);
-            fs::path finish_file = svscan_dir / fs::path(kFinishFile);
+        multiplexer->RemoveTimeoutCallback(kTimeoutGroup);
+        exiting = true;
+        if (close_on_exit) {
+            CloseAllServices(true);
+        }
 
-            std::string cmd = FILESYSTEM.Read(finish_file);
+        fs::path svscan_dir = scan_dir / fs::path(kSvscanDir);
+        fs::path finish_file = svscan_dir / fs::path(kFinishFile);
 
-            if (!cmd.empty()) {
-                VLOG(2) << "Starting finish process";
+        std::string cmd = FILESYSTEM.Read(finish_file);
+        if (!cmd.empty()) {
+            VLOG(2) << "Starting finish process";
 
-                std::string expanded =
-                    winss::Utils::ExpandEnvironmentVariables(cmd);
+            std::string expanded =
+                winss::Utils::ExpandEnvironmentVariables(cmd);
 
-                TProcess finish;
-                finish.Create(winss::ProcessParams{
-                    expanded, false
+            auto finish = std::make_shared<TProcess>();
+            if (finish->Create(winss::ProcessParams{
+                expanded, false
+            })) {
+                multiplexer->AddTriggeredCallback(finish->GetHandle(),
+                    [finish](winss::WaitMultiplexer&,
+                        const winss::HandleWrapper&) {
+                    VLOG(2)
+                        << "Finished process exited with "
+                        << finish->GetExitCode();
                 });
+            } else {
+                LOG(WARNING) << "Unable to spawn .winss-svscan/finish";
             }
         }
     }
@@ -194,6 +252,8 @@ class SvScanTmpl {
     /** The directory for svscan data. */
     static constexpr const char kSvscanDir[14] = ".winss-svscan";
     static constexpr const char kFinishFile[7] = "finish";  /**< Finish file. */
+    /** SIGTERM file. */
+    static constexpr const char kSigTermFile[8] = "SIGTERM";
     /** Env directory. */
     static constexpr const char kEnvDir[18] = ".winss-svscan\\env";
 
@@ -203,16 +263,27 @@ class SvScanTmpl {
      * \param multiplexer The shared multiplexer.
      * \param scan_dir The scan directory.
      * \param rescan The scan period.
+     * \param signals Use handlers for signals.
+     * \param close_event Event when to stop.
      */
     SvScanTmpl(winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer,
-        const fs::path& scan_dir, DWORD rescan) : multiplexer(multiplexer),
-        scan_dir(scan_dir), rescan(rescan), mutex(scan_dir, kMutexName) {
-        multiplexer->AddInitCallback([&](winss::WaitMultiplexer&) {
-            Init();
+        const fs::path& scan_dir, DWORD rescan, bool signals,
+        winss::EventWrapper close_event) : multiplexer(multiplexer),
+        scan_dir(scan_dir), rescan(rescan),  mutex(scan_dir, kMutexName),
+        signals(signals), close_event(close_event) {
+        multiplexer->AddInitCallback([this](winss::WaitMultiplexer&) {
+            this->Init();
         });
 
-        multiplexer->AddStopCallback([&](winss::WaitMultiplexer&) {
-            Stop();
+        multiplexer->AddTriggeredCallback(close_event.GetHandle(),
+            [this](winss::WaitMultiplexer& m, const winss::HandleWrapper& h) {
+            this->Terminate();
+        });
+
+        multiplexer->AddStopCallback(
+            [this, &close_event](winss::WaitMultiplexer& m) {
+            m.RemoveTriggeredCallback(close_event.GetHandle());
+            this->Stop();
         });
     }
 
@@ -279,7 +350,7 @@ class SvScanTmpl {
         multiplexer->Stop(0);
     }
 
-    void operator=(const SvScanTmpl&) = delete;  /**< No copy. */
+    SvScanTmpl& operator=(const SvScanTmpl&) = delete;  /**< No copy. */
     SvScanTmpl& operator=(SvScanTmpl&&) = delete;  /**< No move. */
 };
 

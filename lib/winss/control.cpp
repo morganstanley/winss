@@ -32,14 +32,16 @@ const char winss::Control::kTimeoutGroup[] = "control";
 
 winss::Control::Control(
     winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer,
-    DWORD timeout, bool finish_all) : multiplexer(multiplexer),
-    timeout(timeout), finish_all(finish_all) {
+    DWORD timeout, int timeout_exit_code, bool finish_all) :
+    multiplexer(multiplexer), timeout(timeout),
+    timeout_exit_code(timeout_exit_code), finish_all(finish_all) {
     if (timeout != INFINITE) {
-        multiplexer->AddInitCallback([timeout](winss::WaitMultiplexer& m) {
-            m.AddTimeoutCallback(timeout, [](
+        multiplexer->AddInitCallback([timeout, timeout_exit_code](
+            winss::WaitMultiplexer& m) {
+            m.AddTimeoutCallback(timeout, [timeout_exit_code](
                 winss::WaitMultiplexer& m) {
                 VLOG(3) << "Control timeout!";
-                m.Stop(winss::Control::kTimeoutExitCode);
+                m.Stop(timeout_exit_code);
             }, kTimeoutGroup);
         });
 

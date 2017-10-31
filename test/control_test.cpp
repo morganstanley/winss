@@ -55,7 +55,7 @@ TEST_F(ControlTest, Single) {
     EXPECT_CALL(control_item, Start()).Times(1);
     EXPECT_CALL(multiplexer, Start()).WillOnce(Return(25));
 
-    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, false);
+    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, 1, false);
 
     control.Add(winss::NotOwned(&control_item));
 
@@ -74,7 +74,7 @@ TEST_F(ControlTest, Empty) {
 
     EXPECT_CALL(multiplexer, Start()).Times(0);
 
-    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, false);
+    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, 1, false);
 
     EXPECT_EQ(0, control.Start());
     EXPECT_FALSE(control.IsStarted());
@@ -89,7 +89,7 @@ TEST_F(ControlTest, MultipleWaitAll) {
     EXPECT_CALL(control_item1, Start()).Times(1);
     EXPECT_CALL(control_item2, Start()).Times(1);
 
-    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, true);
+    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, 1, true);
 
     control.Add(winss::NotOwned(&control_item1));
     control.Add(winss::NotOwned(&control_item2));
@@ -120,7 +120,7 @@ TEST_F(ControlTest, MultipleWaitOne) {
     EXPECT_CALL(control_item1, Start()).Times(1);
     EXPECT_CALL(control_item2, Start()).Times(1);
 
-    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, false);
+    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, 1, false);
 
     control.Add(winss::NotOwned(&control_item1));
     control.Add(winss::NotOwned(&control_item2));
@@ -148,7 +148,7 @@ TEST_F(ControlTest, SingleRemove) {
     EXPECT_CALL(control_item, Start()).Times(0);
     EXPECT_CALL(multiplexer, Stop(0)).Times(1);
 
-    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, false);
+    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, 1, false);
 
     control.Add(winss::NotOwned(&control_item));
     control.Remove("1");
@@ -162,7 +162,7 @@ TEST_F(ControlTest, AlreadyStarted) {
 
     EXPECT_CALL(control_item, Start()).Times(1);
 
-    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, false);
+    winss::Control control(winss::NotOwned(&multiplexer), INFINITE, 1, false);
 
     control.Add(winss::NotOwned(&control_item));
     control.Add(winss::NotOwned(&control_item));
@@ -179,14 +179,33 @@ TEST_F(ControlTest, Timeout) {
 
     EXPECT_CALL(control_item, Start()).Times(1);
 
-    winss::Control control(winss::NotOwned(&multiplexer), 500, false);
+    winss::Control control(winss::NotOwned(&multiplexer), 500, 1, false);
     control.Add(winss::NotOwned(&control_item));
 
     multiplexer.mock_init_callbacks.at(0)(multiplexer);
 
     control.Ready("1");
 
-    EXPECT_CALL(multiplexer, Stop(_)).Times(1);
+    EXPECT_CALL(multiplexer, Stop(1)).Times(1);
+
+    multiplexer.mock_timeout_callbacks.at(0)(multiplexer);
+}
+
+TEST_F(ControlTest, TimeoutExitCode) {
+    MockInterface<winss::MockWindowsInterface> windows;
+    NiceMock<winss::MockWaitMultiplexer> multiplexer;
+    NiceMock<winss::MockControlItem> control_item("1");
+
+    EXPECT_CALL(control_item, Start()).Times(1);
+
+    winss::Control control(winss::NotOwned(&multiplexer), 500, 25, false);
+    control.Add(winss::NotOwned(&control_item));
+
+    multiplexer.mock_init_callbacks.at(0)(multiplexer);
+
+    control.Ready("1");
+
+    EXPECT_CALL(multiplexer, Stop(25)).Times(1);
 
     multiplexer.mock_timeout_callbacks.at(0)(multiplexer);
 }
@@ -198,7 +217,7 @@ TEST_F(ControlTest, TimeoutCancelled) {
 
     EXPECT_CALL(control_item, Start()).Times(1);
 
-    winss::Control control(winss::NotOwned(&multiplexer), 500, false);
+    winss::Control control(winss::NotOwned(&multiplexer), 500, 1, false);
     control.Add(winss::NotOwned(&control_item));
 
     multiplexer.mock_init_callbacks.at(0)(multiplexer);

@@ -139,7 +139,8 @@ class ServiceProcessTmpl {
         }
     }
 
-    void operator=(const ServiceProcessTmpl&) = delete;  /**< No copy. */
+    /** No copy. */
+    ServiceProcessTmpl& operator=(const ServiceProcessTmpl&) = delete;
 
     /**
      * Moves the service process object to this object.

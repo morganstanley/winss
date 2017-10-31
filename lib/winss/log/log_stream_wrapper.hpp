@@ -56,8 +56,10 @@ class LogStreamReader {
      */
     virtual std::string GetLine();
 
-    void operator=(const LogStreamReader&) = delete;  /**< No copy. */
-    LogStreamReader& operator=(LogStreamReader&&) = delete; /** No move. */
+    /** No copy. */
+    LogStreamReader& operator=(const LogStreamReader&) = delete;
+    /** No move. */
+    LogStreamReader& operator=(LogStreamReader&&) = delete;
 };
 
 /**
@@ -107,8 +109,10 @@ class LogStreamWriter {
      */
     virtual void Close();
 
-    void operator=(const LogStreamWriter&) = delete;  /**< No copy. */
-    LogStreamWriter& operator=(LogStreamWriter&&) = delete;  /**< No move. */
+    /** No copy. */
+    LogStreamWriter& operator=(const LogStreamWriter&) = delete;
+    /** No move. */
+    LogStreamWriter& operator=(LogStreamWriter&&) = delete;
 
     /**
      * Log stream writer destructor.

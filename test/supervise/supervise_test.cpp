@@ -625,4 +625,65 @@ TEST_F(SuperviseTest, Notifications) {
     EXPECT_FALSE(supervise.GetState().is_up);
     EXPECT_FALSE(supervise.GetState().is_run_process);
 }
+
+TEST_F(SuperviseTest, BrokenNotification) {
+    MockInterface<winss::MockWindowsInterface> windows;
+    MockInterface<winss::MockFilesystemInterface> file;
+    NiceMock<winss::MockWaitMultiplexer> multiplexer;
+    NiceMock<winss::MockSuperviseListener> listener;
+
+    EXPECT_CALL(*file, ChangeDirectory(_)).WillOnce(Return(true));
+    EXPECT_CALL(*file, FileExists(_))
+        .WillOnce(Return(false));
+    EXPECT_CALL(*file, Read(_))
+        .WillOnce(Return("run"))
+        .WillOnce(Return("finish"))
+        .WillOnce(Return(""));
+
+    EXPECT_CALL(listener, Notify(winss::SuperviseNotification::START, _))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(listener, Notify(winss::SuperviseNotification::RUN, _))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(listener, Notify(winss::SuperviseNotification::END, _))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(listener, Notify(winss::SuperviseNotification::BROKEN, _))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(listener, Notify(winss::SuperviseNotification::FINISHED, _))
+        .WillOnce(Return(true));
+
+    MockedSupervise supervise(winss::NotOwned(&multiplexer), "dir");
+    supervise.AddListener(winss::NotOwned(&listener));
+
+    EXPECT_CALL(*supervise.GetMutex(), Lock()).WillOnce(Return(true));
+    EXPECT_CALL(*supervise.GetMutex(), HasLock())
+        .WillOnce(Return(false))
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(*supervise.GetProcess(), Create(_))
+        .WillRepeatedly(Return(true));
+
+    winss::HandleWrapper handle =
+        winss::HandleWrapper(reinterpret_cast<HANDLE>(10000), false);
+    EXPECT_CALL(*supervise.GetProcess(), GetHandle())
+        .WillRepeatedly(Return(handle));
+
+    multiplexer.mock_init_callbacks.at(0)(multiplexer);
+
+    EXPECT_TRUE(supervise.GetState().is_up);
+    EXPECT_TRUE(supervise.GetState().is_run_process);
+
+    EXPECT_CALL(*supervise.GetProcess(), GetExitCode())
+        .WillOnce(Return(0))
+        .WillOnce(Return(winss::Supervise::kDownExitCode));
+
+    multiplexer.mock_triggered_callbacks.at(0)(multiplexer, handle);
+    multiplexer.mock_triggered_callbacks.at(0)(multiplexer, handle);
+    multiplexer.mock_triggered_callbacks.at(0)(multiplexer, handle);
+
+    EXPECT_FALSE(supervise.GetState().is_up);
+    EXPECT_FALSE(supervise.GetState().is_run_process);
+}
 }  // namespace winss

@@ -48,7 +48,7 @@ class MockedServiceProcess :
         return &proc;
     }
 
-    void operator=(const MockedServiceProcess&) = delete;
+    MockedServiceProcess& operator=(const MockedServiceProcess&) = delete;
 
     MockedServiceProcess& operator=(MockedServiceProcess&& p) {
         winss::ServiceProcessTmpl<NiceMockProcess>::operator=(std::move(p));

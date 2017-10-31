@@ -123,7 +123,7 @@ class Process {
     virtual void Close();
 
     /** No copy. */
-    void operator=(const Process&) = delete;
+    Process& operator=(const Process&) = delete;
 
     /**
      * Move management of another process to this one.

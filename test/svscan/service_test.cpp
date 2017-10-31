@@ -60,7 +60,7 @@ class MockedService :
         this->flagged = flagged;
     }
 
-    void operator=(const MockedService&) = delete;
+    MockedService& operator=(const MockedService&) = delete;
 
     MockedService& operator=(MockedService&& p) {
         winss::ServiceTmpl<winss::NiceMockServiceProcess>

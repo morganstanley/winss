@@ -18,22 +18,21 @@
 #include "windows_interface.hpp"
 #include "handle_wrapper.hpp"
 
-winss::EventWrapper::EventWrapper() {
-    handle = WINDOWS.CreateEvent(nullptr, true, false, nullptr);
-}
+winss::EventWrapper::EventWrapper() : handle(winss::TrustedHandleWrapper(
+    WINDOWS.CreateEvent(nullptr, true, false, nullptr), SYNCHRONIZE)) {}
 
 bool winss::EventWrapper::IsSet() const {
-    return WINDOWS.WaitForSingleObject(handle, 0) != WAIT_TIMEOUT;
+    return WINDOWS.WaitForSingleObject(handle.GetHandle(), 0) != WAIT_TIMEOUT;
 }
 
 bool winss::EventWrapper::Set() {
-    return WINDOWS.SetEvent(handle);
+    return WINDOWS.SetEvent(handle.GetHandle());
+}
+
+bool winss::EventWrapper::Reset() {
+    return WINDOWS.ResetEvent(handle.GetHandle());
 }
 
 winss::HandleWrapper winss::EventWrapper::GetHandle() const {
-    return winss::HandleWrapper(handle, false, SYNCHRONIZE);
-}
-
-winss::EventWrapper::~EventWrapper() {
-    WINDOWS.CloseHandle(handle);
+    return handle.GetHandleWrapper();
 }

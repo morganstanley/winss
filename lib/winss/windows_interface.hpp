@@ -306,8 +306,10 @@ class WindowsInterface {
      */
     static const WindowsInterface& GetInstance();
 
-    void operator=(const WindowsInterface&) = delete;  /**< No copy. */
-    WindowsInterface& operator=(WindowsInterface&&) = delete;  /**< No move. */
+    /** No copy. */
+    WindowsInterface& operator=(const WindowsInterface&) = delete;
+    /** No move. */
+    WindowsInterface& operator=(WindowsInterface&&) = delete;
 };
 }  // namespace winss
 

@@ -34,7 +34,7 @@ class MockLogStreamReader : public winss::LogStreamReader {
     MOCK_CONST_METHOD0(IsEOF, bool());
     MOCK_METHOD0(GetLine, std::string());
 
-    void operator=(const MockLogStreamReader&) = delete;
+    MockLogStreamReader& operator=(const MockLogStreamReader&) = delete;
     MockLogStreamReader& operator=(MockLogStreamReader&&) = delete;
 };
 class MockLogStreamWriter : public winss::LogStreamWriter {
@@ -48,7 +48,7 @@ class MockLogStreamWriter : public winss::LogStreamWriter {
     MOCK_METHOD0(GetPos, std::streamoff());
     MOCK_METHOD0(Close, void());
 
-    void operator=(const MockLogStreamWriter&) = delete;
+    MockLogStreamWriter& operator=(const MockLogStreamWriter&) = delete;
     MockLogStreamWriter& operator=(MockLogStreamWriter&&) = delete;
 
     virtual ~MockLogStreamWriter() {}

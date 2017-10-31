@@ -90,15 +90,17 @@ single :term:`service`. It is designed to be either the root or a branch of a
 
 .. code-block:: bat
 
-   Usage: winss-svscan.exe [options] [scandir]                            
-                                                                       
-   Options:                                                               
-     --help       Print usage and exit.                                   
-     --version    Print the current version of winss and exit.            
-     -v[<level>], --verbose[=<level>]                                     
-                       Sets the verbose level.                            
-     -t<rescan>,  --timeout=<rescan>                                      
-                       Sets the rescan timeout.                           
+   Usage: winss-svscan-g.exe [options] [scandir]
+
+   Options:
+     --help       Print usage and exit.
+     --version    Print the current version of winss and exit.
+     -v[<level>], --verbose[=<level>]
+                       Sets the verbose level.
+     -t<rescan>,  --timeout=<rescan>
+                       Sets the rescan timeout.
+     -s,          --signals
+                       Divert signals.
 
 - If given a ``scandir`` is specified then that is used. Otherwise then the
   current directory is used.
@@ -118,6 +120,26 @@ single :term:`service`. It is designed to be either the root or a branch of a
 
 Options
 ^^^^^^^
+
+ -s\, --signals
+    By default, :ref:`winss-svscan` will handle any termination signals that
+    it receives and attempt to propagate these and close. Using divert signals
+    it will instead launch the process defined in **.winss-svscan/SIGTERM**.
+
+    :ref:`winss-svscan` will not exit its loop on its own when it receives a
+    termination signal and the -s option has been given. To make it exit its
+    loop, invoke a :ref:`winss-svscanctl` command from the signal handling
+    process. For instance, a **.winss-svscan/SIGTERM** file could point to a
+    Powershell script like the following:
+
+    .. code-block:: bat
+
+        # cleanup here
+        & winss-svscanctl.exe -q .
+
+    If an action cannot be taken (the relevant file doesn't exist, or cannot
+    run, or any kind of error happens), :ref:`winss-svscan` prints a warning
+    message but does nothing else with the signal.
 
  -t<rescan>\, --timeout=<rescan> 
     Perform a scan every ``rescan`` milliseconds. If rescan is **0**

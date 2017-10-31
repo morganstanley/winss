@@ -138,7 +138,7 @@ class HandleWrapper {
         }
 
         WaitResult result = Wait(timeout, handles);
-        VLOG(7) << "Wait status:" << result.state;
+        VLOG(7) << "Wait status: " << result.state;
         return result;
     }
 
@@ -304,13 +304,14 @@ class HandleWrapper {
      * Any ownership rights will not be copied.
      *
      * \param h The handle wrapper to copy.
+     * \return This handle wrapper.
      */
-    void operator=(const HandleWrapper& h);
+    HandleWrapper& operator=(const HandleWrapper& h);
 
      /**
      * Move the handle wrapper.
      *
-     * * Any ownership rights will be moved
+     * Any ownership rights will be moved
      *
      * \param h The handle wrapper to move.
      * \return This handle wrapper.
@@ -320,7 +321,74 @@ class HandleWrapper {
     /**
      * Cleans up the handle.
      */
-    ~HandleWrapper();
+    virtual ~HandleWrapper();
+};
+
+class TrustedHandleWrapper : public HandleWrapper {
+ public:
+    /**
+    * Create an empty handle wrapper.
+    */
+    TrustedHandleWrapper() = default;
+
+    /**
+    * Create a new handle wrapper with access to the wrapped handle.
+    *
+    * \param handle The handle to wrap.
+    * \param dup_rights The duplicate rights on the handle.
+    */
+    explicit TrustedHandleWrapper(HANDLE handle, DWORD dup_rights = 0);
+
+    /**
+    * Copies the handle wrapper.
+    *
+    * Any ownership rights will not be copied.
+    *
+    * \param h The handle wrapper to copy.
+    */
+    TrustedHandleWrapper(const TrustedHandleWrapper& h) = default;
+
+    /**
+    * Move the handle wrapper.
+    *
+    * Any ownership rights will be moved
+    *
+    * \param h The handle wrapper to move.
+    */
+    TrustedHandleWrapper(TrustedHandleWrapper&& h) = default;
+
+    /**
+     * Gets the handle that is wrapped.
+     * 
+     * \return the wrapped handle.
+     */
+    HANDLE GetHandle() const;
+
+    /**
+    * Gets a non-owned handle wrapper.
+    *
+    * \return A new handle wrapper.
+    */
+    HandleWrapper GetHandleWrapper() const;
+
+    /**
+    * Copies the handle wrapper.
+    *
+    * Any ownership rights will not be copied.
+    *
+    * \param h The handle wrapper to copy.
+    */
+    TrustedHandleWrapper& operator=(const TrustedHandleWrapper& h) = default;
+
+    /**
+    * Move the handle wrapper.
+    *
+    * * Any ownership rights will be moved
+    *
+    * \param h The handle wrapper owner to move.
+    * \return This handle wrapper owner.
+    */
+    TrustedHandleWrapper& operator=(TrustedHandleWrapper&& h) = default;
 };
 
 /**

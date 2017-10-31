@@ -579,7 +579,7 @@ class MockWindowsInterface : public winss::WindowsInterface {
                 &MockWindowsInterface::CryptReleaseContextConcrete));
     }
 
-    void operator=(const MockWindowsInterface&) = delete;
+    MockWindowsInterface& operator=(const MockWindowsInterface&) = delete;
     MockWindowsInterface& operator=(MockWindowsInterface&&) = delete;
 };
 }  // namespace winss

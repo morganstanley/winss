@@ -79,7 +79,8 @@ class SuperviseStateFile : public winss::SuperviseListener {
     virtual std::string Format(const winss::SuperviseState& state,
         bool is_up) const;
 
-    void operator=(const SuperviseStateFile&) = delete;  /**< No copy. */
+    /** No copy. */
+    SuperviseStateFile& operator=(const SuperviseStateFile&) = delete;
     /** No move. */
     SuperviseStateFile& operator=(SuperviseStateFile&&) = delete;
 };

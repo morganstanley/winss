@@ -161,7 +161,7 @@ class ServiceTmpl {
         return flagged;
     }
 
-    void operator=(const ServiceTmpl&) = delete;  /**< No copy. */
+    ServiceTmpl& operator=(const ServiceTmpl&) = delete;  /**< No copy. */
 
     /**
      * Moves the service object to this object.

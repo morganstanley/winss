@@ -40,7 +40,7 @@ class MockSuperviseStateFile : public winss::SuperviseStateFile {
     MOCK_CONST_METHOD1(Read, bool(winss::SuperviseState* state));
     MOCK_CONST_METHOD1(Format, std::string(winss::SuperviseState* state));
 
-    void operator=(const MockSuperviseStateFile&) = delete;
+    MockSuperviseStateFile& operator=(const MockSuperviseStateFile&) = delete;
     MockSuperviseStateFile& operator=(MockSuperviseStateFile&&) = delete;
 };
 }  // namespace winss
