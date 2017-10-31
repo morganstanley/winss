@@ -32,6 +32,7 @@ const char winss::SuperviseController::kSvcExit = 'x';
 const char winss::SuperviseController::kSuperviseStart = 's';
 const char winss::SuperviseController::kSuperviseRun = 'u';
 const char winss::SuperviseController::kSuperviseEnd = 'd';
+const char winss::SuperviseController::kSuperviseBroken = 'O';
 const char winss::SuperviseController::kSuperviseFinished = 'D';
 const char winss::SuperviseController::kSuperviseExit = 'x';
 
@@ -59,6 +60,10 @@ bool winss::SuperviseController::Notify(
     case END:
         VLOG(4) << "Sending END";
         outbound->Send({ kSuperviseEnd });
+        break;
+    case BROKEN:
+        VLOG(4) << "Sending BROKEN";
+        outbound->Send({ kSuperviseBroken });
         break;
     case FINISHED:
         VLOG(4) << "Sending FINISHED";

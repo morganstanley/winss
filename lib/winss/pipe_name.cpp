@@ -54,8 +54,9 @@ const std::string& winss::PipeName::Get() const {
     return name;
 }
 
-void winss::PipeName::operator=(const winss::PipeName& p) {
+winss::PipeName& winss::PipeName::operator=(const winss::PipeName& p) {
     name = p.name;
+    return *this;
 }
 
 winss::PipeName& winss::PipeName::operator=(winss::PipeName&& p) {

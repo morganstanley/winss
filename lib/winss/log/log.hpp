@@ -211,7 +211,7 @@ class LogTmpl {
         return 0;
     }
 
-    void operator=(const LogTmpl&) = delete;  /**< No copy. */
+    LogTmpl& operator=(const LogTmpl&) = delete;  /**< No copy. */
     LogTmpl& operator=(LogTmpl&&) = delete;  /**< No move. */
 };
 

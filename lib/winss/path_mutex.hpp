@@ -74,7 +74,7 @@ class PathMutex {
      */
     virtual const std::string& GetName() const;
 
-    void operator=(const PathMutex&) = delete;  /**< No copy. */
+    PathMutex& operator=(const PathMutex&) = delete;  /**< No copy. */
     PathMutex& operator=(PathMutex&&) = delete;  /**< No move. */
 
     virtual ~PathMutex();  /**< Default destructor. */

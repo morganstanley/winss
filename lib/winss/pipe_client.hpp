@@ -101,8 +101,8 @@ class PipeClient {
                 return;
             }
 
-            multiplexer->AddTriggeredCallback(handle, [&](
-                winss::WaitMultiplexer& m, const winss::HandleWrapper& handle) {
+            multiplexer->AddTriggeredCallback(handle, [this](
+                winss::WaitMultiplexer&, const winss::HandleWrapper& handle) {
                 Triggered(handle);
             });
 
@@ -148,15 +148,15 @@ class PipeClient {
      */
     virtual void Connect() {
         if (!stopping && !instance.IsConnected()) {
-            multiplexer->AddStopCallback([&](winss::WaitMultiplexer&) {
-                Stop();
+            multiplexer->AddStopCallback([this](winss::WaitMultiplexer&) {
+                this->Stop();
             });
 
             if (instance.CreateFile(pipe_name)) {
                 multiplexer->AddTriggeredCallback(instance.GetHandle(),
-                    [&](winss::WaitMultiplexer& m,
-                    const winss::HandleWrapper& handle) {
-                    Triggered(handle);
+                    [this](winss::WaitMultiplexer&,
+                        const winss::HandleWrapper& handle) {
+                    this->Triggered(handle);
                 });
                 if (instance.SetConnected()) {
                     Connected();
@@ -179,7 +179,7 @@ class PipeClient {
         }
     }
 
-    void operator=(const PipeClient&) = delete;  /**< No copy. */
+    PipeClient& operator=(const PipeClient&) = delete;  /**< No copy. */
     PipeClient& operator=(PipeClient&&) = delete;  /**< No move. */
 
     /**
@@ -321,7 +321,7 @@ class OutboundPipeClientTmpl : public PipeClient<TInstance,
     }
 
     /** No copy. */
-    void operator=(const OutboundPipeClientTmpl&) = delete;
+    OutboundPipeClientTmpl& operator=(const OutboundPipeClientTmpl&) = delete;
     /** No move. */
     OutboundPipeClientTmpl& operator=(OutboundPipeClientTmpl&&) = delete;
 };
@@ -412,7 +412,7 @@ class InboundPipeClientTmpl : public PipeClient<TInstance,
     InboundPipeClientTmpl(InboundPipeClientTmpl&&) = delete;
 
     /** No copy. */
-    void operator=(const InboundPipeClientTmpl&) = delete;
+    InboundPipeClientTmpl& operator=(const InboundPipeClientTmpl&) = delete;
     /** No move. */
     InboundPipeClientTmpl& operator=(InboundPipeClientTmpl&&) = delete;
 };

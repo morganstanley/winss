@@ -50,7 +50,7 @@ class MockService : public virtual winss::Service {
     MOCK_METHOD0(Check, void());
     MOCK_METHOD1(Close, bool(bool ignore_flagged));
 
-    void operator=(const MockService&) = delete;
+    MockService& operator=(const MockService&) = delete;
 
     MockService& operator=(MockService&& p) {
         winss::Service::operator=(std::move(p));
@@ -69,7 +69,7 @@ class NiceMockService : public NiceMock<MockService> {
     NiceMockService(NiceMockService&& p) :
         winss::Service::ServiceTmpl(std::move(p)) {}
 
-    void operator=(const NiceMockService&) = delete;
+    NiceMockService& operator=(const NiceMockService&) = delete;
 
     NiceMockService& operator=(NiceMockService&& p) {
         winss::Service::operator=(std::move(p));

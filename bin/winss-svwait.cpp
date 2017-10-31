@@ -38,6 +38,8 @@ INITIALIZE_EASYLOGGINGPP
 
 namespace fs = std::experimental::filesystem;
 
+static const int kTimeoutExitCode = 99;
+
 struct Settings {
     std::vector<fs::path> service_dirs;
     winss::SuperviseStateListenerAction wait =
@@ -233,7 +235,7 @@ int main(int argc, char* argv[]) {
     multiplexer.AddCloseEvent(winss::GetCloseEvent(), 0);
 
     winss::Control control(winss::NotOwned(&multiplexer),
-        settings.timeout, settings.wait_all);
+        settings.timeout, kTimeoutExitCode, settings.wait_all);
 
     std::vector<WaitItem> wait_items;
 

@@ -128,9 +128,11 @@ class NotOwningPtr {
      * Assigns the pointer to another pointer.
      *
      * \param[in] ptr The other not owned pointer.
+     * \return This pointer.
      */
-    void operator=(const NotOwningPtr& ptr) {
+    NotOwningPtr& operator=(const NotOwningPtr& ptr) {
         p = ptr.p;
+        return *this;
     }
 };
 

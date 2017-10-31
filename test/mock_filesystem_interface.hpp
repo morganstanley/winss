@@ -50,7 +50,8 @@ class MockFilesystemInterface : public winss::FilesystemInterface {
     MOCK_CONST_METHOD1(GetFiles, std::vector<fs::path>(
         const fs::path& path));
 
-    void operator=(const MockFilesystemInterface&) = delete;
+    MockFilesystemInterface& operator=(
+        const MockFilesystemInterface&) = delete;
     MockFilesystemInterface& operator=(MockFilesystemInterface&&) = delete;
 };
 }  // namespace winss

@@ -66,7 +66,7 @@ class MockPipeInstance : public virtual winss::PipeInstance {
     MOCK_METHOD0(DisconnectNamedPipe, void());
     MOCK_METHOD0(Close, bool());
 
-    void operator=(const MockPipeInstance&) = delete;
+    MockPipeInstance& operator=(const MockPipeInstance&) = delete;
 
     MockPipeInstance& operator=(MockPipeInstance&& instance) {
         winss::PipeInstance::operator=(std::move(instance));
@@ -94,7 +94,7 @@ class NiceMockPipeInstance : public NiceMock<MockPipeInstance> {
              winss::HandleWrapper(handle, false)));
      }
 
-     void operator=(const NiceMockPipeInstance&) = delete;
+     NiceMockPipeInstance& operator=(const NiceMockPipeInstance&) = delete;
 
      NiceMockPipeInstance& operator=(NiceMockPipeInstance&& instance) {
          winss::PipeInstance::operator=(std::move(instance));
@@ -151,7 +151,8 @@ class MockOutboundPipeInstance : public virtual winss::OutboundPipeInstance {
     MOCK_METHOD0(Write, bool());
     MOCK_METHOD0(Read, bool());
 
-    void operator=(const MockOutboundPipeInstance&) = delete;
+    MockOutboundPipeInstance& operator=(
+        const MockOutboundPipeInstance&) = delete;
 
     MockOutboundPipeInstance& operator=(MockOutboundPipeInstance&& instance) {
         winss::PipeInstance::operator=(std::move(instance));
@@ -181,7 +182,8 @@ class NiceMockOutboundPipeInstance :
             winss::HandleWrapper(handle, false)));
     }
 
-    void operator=(const NiceMockOutboundPipeInstance&) = delete;
+    NiceMockOutboundPipeInstance& operator=(
+        const NiceMockOutboundPipeInstance&) = delete;
 
     NiceMockOutboundPipeInstance& operator=(
         NiceMockOutboundPipeInstance&& instance) {
@@ -234,7 +236,8 @@ class MockInboundPipeInstance : public virtual winss::InboundPipeInstance {
     MOCK_METHOD0(Read, bool());
     MOCK_METHOD0(SwapBuffer, std::vector<char>());
 
-    void operator=(const MockInboundPipeInstance&) = delete;
+    MockInboundPipeInstance& operator=(
+        const MockInboundPipeInstance&) = delete;
 
     MockInboundPipeInstance& operator=(MockInboundPipeInstance&& instance) {
         winss::PipeInstance::operator=(std::move(instance));
@@ -264,7 +267,8 @@ class NiceMockInboundPipeInstance :
             winss::HandleWrapper(handle, false)));
     }
 
-    void operator=(const NiceMockInboundPipeInstance&) = delete;
+    NiceMockInboundPipeInstance& operator=(
+        const NiceMockInboundPipeInstance&) = delete;
 
     NiceMockInboundPipeInstance& operator=(
         NiceMockInboundPipeInstance&& instance) {

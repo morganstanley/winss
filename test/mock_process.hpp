@@ -43,7 +43,7 @@ class MockProcess : virtual public winss::Process {
     MOCK_METHOD0(Terminate, void());
     MOCK_METHOD0(Close, void());
 
-    void operator=(const MockProcess&) = delete;
+    MockProcess& operator=(const MockProcess&) = delete;
 
     MockProcess& operator=(MockProcess&& p) {
         winss::Process::operator=(std::move(p));
@@ -57,7 +57,7 @@ class NiceMockProcess : virtual public NiceMock<MockProcess> {
     NiceMockProcess(NiceMockProcess&& p) :
         winss::Process::Process(std::move(p)) {}
 
-    void operator=(const NiceMockProcess&) = delete;
+    NiceMockProcess& operator=(const NiceMockProcess&) = delete;
 
     NiceMockProcess& operator=(NiceMockProcess&& instance) {
         winss::Process::operator=(std::move(instance));

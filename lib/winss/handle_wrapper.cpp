@@ -21,16 +21,16 @@
 #include "windows_interface.hpp"
 
 winss::HandleWrapper::HandleWrapper() :
-    handle(nullptr), owned(false), dup_rights(0) {}
+    owned(false), handle(nullptr), dup_rights(0) {}
 
 winss::HandleWrapper::HandleWrapper(HANDLE handle, bool owned,
-    DWORD dup_rights) : handle(handle), owned(owned), dup_rights(dup_rights) {}
+    DWORD dup_rights) : owned(owned), handle(handle), dup_rights(dup_rights) {}
 
 winss::HandleWrapper::HandleWrapper(const winss::HandleWrapper& h) :
-    handle(h.handle), owned(false), dup_rights(h.dup_rights) {}
+    owned(false), handle(h.handle), dup_rights(h.dup_rights) {}
 
 winss::HandleWrapper::HandleWrapper(winss::HandleWrapper&& h) :
-    handle(h.handle), owned(h.owned), dup_rights(h.dup_rights) {
+    owned(h.owned), handle(h.handle), dup_rights(h.dup_rights) {
     h.owned = false;
 }
 
@@ -122,13 +122,15 @@ void winss::HandleWrapper::CloseHandle() {
     }
 }
 
-void winss::HandleWrapper::operator=(const winss::HandleWrapper& h) {
+winss::HandleWrapper& winss::HandleWrapper::operator=(
+    const winss::HandleWrapper& h) {
     if (this != &h) {
         CloseHandle();
         handle = h.handle;
         owned = false;
         dup_rights = h.dup_rights;
     }
+    return *this;
 }
 
 winss::HandleWrapper& winss::HandleWrapper::operator=(
@@ -229,4 +231,16 @@ bool winss::operator>=(const winss::HandleWrapper &lhs, const HANDLE &rhs) {
  */
 bool winss::operator>=(const HANDLE &lhs, const winss::HandleWrapper &rhs) {
     return lhs >= rhs.handle;
+}
+
+winss::TrustedHandleWrapper::TrustedHandleWrapper(HANDLE handle,
+    DWORD dup_rights) : HandleWrapper(handle, true, dup_rights) {
+}
+
+HANDLE winss::TrustedHandleWrapper::GetHandle() const {
+    return handle;
+}
+
+winss::HandleWrapper winss::TrustedHandleWrapper::GetHandleWrapper() const {
+    return winss::HandleWrapper(handle, false, dup_rights);
 }

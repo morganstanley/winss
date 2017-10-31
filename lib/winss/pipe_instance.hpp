@@ -150,7 +150,7 @@ class PipeInstance {
     virtual bool Close();
 
     /** No copy. */
-    void operator=(const PipeInstance&) = delete;
+    PipeInstance& operator=(const PipeInstance&) = delete;
 
     /**
      * Move a pipe instance to this instance.
@@ -229,7 +229,7 @@ class OutboundPipeInstance : public PipeInstance {
     void Read();
 
     /** No copy. */
-    void operator=(const OutboundPipeInstance&) = delete;
+    OutboundPipeInstance& operator=(const OutboundPipeInstance&) = delete;
 
     /**
      * Move an outbound pipe instance to this instance.
@@ -280,7 +280,7 @@ class InboundPipeInstance : public PipeInstance {
     std::vector<char> SwapBuffer();
 
     /** No copy. */
-    void operator=(const InboundPipeInstance&) = delete;
+    InboundPipeInstance& operator=(const InboundPipeInstance&) = delete;
 
     /**
      * Move an inbound pipe instance to this instance.

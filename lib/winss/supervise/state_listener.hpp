@@ -85,7 +85,7 @@ class SuperviseStateListener : public InboundControlItemListener {
     bool HandleReceived(const std::vector<char>& message);
 
     /** No copy. */
-    void operator=(const SuperviseStateListener&) = delete;
+    SuperviseStateListener& operator=(const SuperviseStateListener&) = delete;
     /** No move. */
     SuperviseStateListener& operator=(SuperviseStateListener&&) = delete;
 };

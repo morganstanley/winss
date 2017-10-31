@@ -49,6 +49,7 @@ class SuperviseController :
     static const char kSuperviseStart;  /**< Start event. */
     static const char kSuperviseRun;  /**< Run event. */
     static const char kSuperviseEnd;  /**< End event. */
+    static const char kSuperviseBroken;  /**< Broken event. */
     static const char kSuperviseFinished;  /**< Finished event. */
     static const char kSuperviseExit;  /**< Exit event. */
 
@@ -92,7 +93,7 @@ class SuperviseController :
     static winss::SuperviseNotification GetNotification(char c);
 
     /** No copy. */
-    void operator=(const SuperviseController&) = delete;
+    SuperviseController& operator=(const SuperviseController&) = delete;
     /** No move. */
     SuperviseController& operator=(SuperviseController&&) = delete;
 };

@@ -48,7 +48,7 @@ class MockServiceProcess : public virtual winss::ServiceProcess {
     MOCK_METHOD2(Start, void(const winss::ServicePipes& pipes, bool consumer));
     MOCK_METHOD0(Close, void());
 
-    void operator=(const MockServiceProcess&) = delete;
+    MockServiceProcess& operator=(const MockServiceProcess&) = delete;
 
     MockServiceProcess& operator=(MockServiceProcess&& p) {
         winss::ServiceProcess::operator=(std::move(p));
@@ -67,7 +67,7 @@ class NiceMockServiceProcess : public NiceMock<MockServiceProcess> {
     NiceMockServiceProcess(NiceMockServiceProcess&& p) :
         winss::ServiceProcess::ServiceProcessTmpl(std::move(p)) {}
 
-    void operator=(const NiceMockServiceProcess&) = delete;
+    NiceMockServiceProcess& operator=(const NiceMockServiceProcess&) = delete;
 
     NiceMockServiceProcess& operator=(NiceMockServiceProcess&& p) {
         winss::ServiceProcess::operator=(std::move(p));

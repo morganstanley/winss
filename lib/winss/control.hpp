@@ -87,6 +87,7 @@ class Control {
     std::set<std::string> ready;  /**< Items that are ready. */
     bool started = false;  /**< Orchestration has started. */
     const DWORD timeout;  /**< Timeout for orchestration. */
+    const int timeout_exit_code;  /**< Exit code for timeout. */
     const bool finish_all;  /**< If all control items must finish. */
 
  public:
@@ -95,10 +96,13 @@ class Control {
      *
      * \param multiplexer The shared multiplexer.
      * \param timeout Orchestration timeout.
+     * \param timeout_exit_code exit code for timeout.
      * \param finish_all If all control items must finish.
+     * \
      */
     explicit Control(winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer,
-        DWORD timeout = INFINITE, bool finish_all = true);
+        DWORD timeout = INFINITE, int timeout_exit_code = 1,
+        bool finish_all = true);
     Control(const Control&) = delete;  /**< No copy. */
     Control(Control&&) = delete;  /**< No move. */
 
@@ -135,7 +139,7 @@ class Control {
      */
     int Start();
 
-    void operator=(const Control&) = delete;  /**< No copy. */
+    Control& operator=(const Control&) = delete;  /**< No copy. */
     Control& operator=(Control&&) = delete;  /**< No move. */
 };
 
@@ -202,7 +206,7 @@ class OutboundControlItem :
     bool Disconnected();
 
     /** No copy. */
-    void operator=(const OutboundControlItem&) = delete;
+    OutboundControlItem& operator=(const OutboundControlItem&) = delete;
     /** No move. */
     OutboundControlItem& operator=(OutboundControlItem&&) = delete;
 };
@@ -307,7 +311,7 @@ class InboundControlItem :
     bool Disconnected();
 
     /** No copy. */
-    void operator=(const InboundControlItem&) = delete;
+    InboundControlItem& operator=(const InboundControlItem&) = delete;
     /** No move. */
     InboundControlItem& operator=(InboundControlItem&&) = delete;
 };

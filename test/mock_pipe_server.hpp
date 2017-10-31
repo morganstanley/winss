@@ -37,7 +37,7 @@ class MockOutboundPipeServer : public winss::OutboundPipeServer {
     MOCK_CONST_METHOD0(InstanceCount, size_t());
     MOCK_METHOD1(Send, bool(const std::vector<char>& data));
 
-    void operator=(const MockOutboundPipeServer&) = delete;
+    MockOutboundPipeServer& operator=(const MockOutboundPipeServer&) = delete;
     MockOutboundPipeServer& operator=(MockOutboundPipeServer&&) = delete;
 };
 class MockInboundPipeServer : public winss::InboundPipeServer {
@@ -53,7 +53,7 @@ class MockInboundPipeServer : public winss::InboundPipeServer {
     MOCK_CONST_METHOD0(InstanceCount, size_t());
     MOCK_METHOD1(AddListener, void(winss::PipeServerReceiveListener* listener));
 
-    void operator=(const MockInboundPipeServer&) = delete;
+    MockInboundPipeServer& operator=(const MockInboundPipeServer&) = delete;
     MockInboundPipeServer& operator=(MockInboundPipeServer&&) = delete;
 };
 class MockPipeServerReceiveListener : public winss::PipeServerReceiveListener {

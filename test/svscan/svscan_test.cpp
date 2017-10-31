@@ -19,6 +19,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "winss/winss.hpp"
+#include "winss/handle_wrapper.hpp"
 #include "winss/svscan/svscan.hpp"
 #include "winss/not_owning_ptr.hpp"
 #include "../mock_interface.hpp"
@@ -42,13 +43,15 @@ class SvScanTest : public testing::Test {
 class HookedMockProcess : virtual public winss::NiceMockProcess {
  public:
     HookedMockProcess() : winss::Process::Process() {
-        EXPECT_CALL(*this, Create(_)).Times(1);
+        EXPECT_CALL(*this, Create(_)).WillOnce(Return(true));
+        EXPECT_CALL(*this, GetHandle())
+            .WillRepeatedly(Return(winss::HandleWrapper()));
     }
     HookedMockProcess(const HookedMockProcess&) = delete;
     HookedMockProcess(HookedMockProcess&& p) :
         winss::Process::Process(std::move(p)) {}
 
-    void operator=(const HookedMockProcess&) = delete;
+    HookedMockProcess& operator=(const HookedMockProcess&) = delete;
 
     HookedMockProcess& operator=(HookedMockProcess&& p) {
         winss::Process::operator=(std::move(p));
@@ -59,10 +62,10 @@ class MockedSvScan : public winss::SvScanTmpl<winss::NiceMockService,
     winss::MockPathMutex, HookedMockProcess> {
  public:
     MockedSvScan(winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer,
-        const fs::path& scan_dir, DWORD rescan) :
-        winss::SvScanTmpl<winss::NiceMockService,
-        winss::MockPathMutex, HookedMockProcess>
-        ::SvScanTmpl(multiplexer, scan_dir, rescan) {}
+        const fs::path& scan_dir, DWORD rescan, bool signals,
+        winss::EventWrapper close_event) : winss::SvScanTmpl<
+        winss::NiceMockService, winss::MockPathMutex, HookedMockProcess>
+        ::SvScanTmpl(multiplexer, scan_dir, rescan, signals, close_event) {}
 
     MockedSvScan(const MockedSvScan&) = delete;
     MockedSvScan(MockedSvScan&&) = delete;
@@ -80,14 +83,16 @@ class MockedSvScan : public winss::SvScanTmpl<winss::NiceMockService,
         return &mutex;
     }
 
-    void operator=(const MockedSvScan&) = delete;
+    MockedSvScan& operator=(const MockedSvScan&) = delete;
     MockedSvScan& operator=(MockedSvScan&&) = delete;
 };
 
 TEST_F(SvScanTest, Init) {
     MockInterface<winss::MockFilesystemInterface> file;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0);
+    winss::EventWrapper close_event;
+    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0, false,
+        close_event);
 
     EXPECT_CALL(*file, ChangeDirectory(_))
         .WillOnce(Return(true));
@@ -134,7 +139,9 @@ TEST_F(SvScanTest, ReadEnv) {
 TEST_F(SvScanTest, InitDirNotExists) {
     MockInterface<winss::MockFilesystemInterface> file;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0);
+    winss::EventWrapper close_event;
+    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0, false,
+        close_event);
 
     EXPECT_CALL(multiplexer, Stop(_)).Times(1);
 
@@ -150,7 +157,9 @@ TEST_F(SvScanTest, InitDirNotExists) {
 TEST_F(SvScanTest, InitLockTaken) {
     MockInterface<winss::MockFilesystemInterface> file;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0);
+    winss::EventWrapper close_event;
+    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0, false,
+        close_event);
 
     EXPECT_CALL(multiplexer, Stop(_)).Times(1);
 
@@ -169,7 +178,9 @@ TEST_F(SvScanTest, InitLockTaken) {
 TEST_F(SvScanTest, Scan) {
     MockInterface<winss::MockFilesystemInterface> file;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0);
+    winss::EventWrapper close_event;
+    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0, false,
+        close_event);
 
     EXPECT_CALL(*file, GetDirectories(_))
         .WillOnce(Return(std::vector<fs::path>({
@@ -187,7 +198,9 @@ TEST_F(SvScanTest, Scan) {
 TEST_F(SvScanTest, ReScan) {
     MockInterface<winss::MockFilesystemInterface> file;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 5000);
+    winss::EventWrapper close_event;
+    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 5000, false,
+        close_event);
 
     EXPECT_CALL(*file, GetDirectories(_))
         .WillOnce(Return(std::vector<fs::path>({".", "..", ".hidden",
@@ -214,7 +227,9 @@ TEST_F(SvScanTest, ReScan) {
 TEST_F(SvScanTest, CloseAllServices) {
     MockInterface<winss::MockFilesystemInterface> file;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 5000);
+    winss::EventWrapper close_event;
+    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 5000, false,
+        close_event);
 
     EXPECT_CALL(*file, GetDirectories(_))
         .WillOnce(Return(std::vector<fs::path>({ ".", "..", ".hidden",
@@ -247,11 +262,49 @@ TEST_F(SvScanTest, CloseAllServices) {
 TEST_F(SvScanTest, Finish) {
     MockInterface<winss::MockFilesystemInterface> file;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0);
+    winss::EventWrapper close_event;
+    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0, false,
+        close_event);
 
+    EXPECT_CALL(multiplexer, AddTriggeredCallback(_, _)).Times(1);
     EXPECT_CALL(*file, Read(_)).WillOnce(Return("cmd"));
 
     svscan.Exit(false);
     multiplexer.mock_stop_callbacks.at(0)(multiplexer);
+}
+
+TEST_F(SvScanTest, SignalsDiverted) {
+    MockInterface<winss::MockFilesystemInterface> file;
+    NiceMock<winss::MockWaitMultiplexer> multiplexer;
+    winss::EventWrapper close_event;
+    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0, true,
+        close_event);
+
+    EXPECT_CALL(*file, Read(_)).WillOnce(Return("cmd"));
+    EXPECT_CALL(*svscan.GetMutex(), HasLock())
+        .WillRepeatedly(Return(true));
+
+    multiplexer.mock_init_callbacks.at(0)(multiplexer);
+
+    multiplexer.mock_triggered_callbacks.at(0)(multiplexer,
+        close_event.GetHandle());
+}
+
+TEST_F(SvScanTest, SignalsNotDiverted) {
+    MockInterface<winss::MockFilesystemInterface> file;
+    NiceMock<winss::MockWaitMultiplexer> multiplexer;
+    winss::EventWrapper close_event;
+    MockedSvScan svscan(winss::NotOwned(&multiplexer), ".", 0, false,
+        close_event);
+
+    EXPECT_CALL(*svscan.GetMutex(), HasLock())
+        .WillRepeatedly(Return(true));
+
+    EXPECT_CALL(multiplexer, Stop(_)).Times(1);
+
+    multiplexer.mock_init_callbacks.at(0)(multiplexer);
+
+    multiplexer.mock_triggered_callbacks.at(0)(multiplexer,
+        close_event.GetHandle());
 }
 }  // namespace winss

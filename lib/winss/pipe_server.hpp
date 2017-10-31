@@ -65,9 +65,9 @@ class PipeServer {
             if (instance.CreateNamedPipe(pipe_name)) {
                 winss::HandleWrapper handle = instance.GetHandle();
                 instances.emplace(handle, std::move(instance));
-                multiplexer->AddTriggeredCallback(handle, [&](
+                multiplexer->AddTriggeredCallback(handle, [this](
                     winss::WaitMultiplexer&, const winss::HandleWrapper& h) {
-                    Triggered(h);
+                    this->Triggered(h);
                 });
                 open = true;
                 VLOG(6) << "Pipe server clients: " << instances.size();
@@ -111,9 +111,9 @@ class PipeServer {
                 return;
             }
 
-            multiplexer->AddTriggeredCallback(handle, [&](
-                winss::WaitMultiplexer& m, const winss::HandleWrapper& h) {
-                Triggered(h);
+            multiplexer->AddTriggeredCallback(handle, [this](
+                winss::WaitMultiplexer&, const winss::HandleWrapper& h) {
+                this->Triggered(h);
             });
 
             if (result == SKIP) {
@@ -154,12 +154,12 @@ class PipeServer {
      */
     explicit PipeServer(const PipeServerConfig& config) :
         pipe_name(config.pipe_name), multiplexer(config.multiplexer) {
-        multiplexer->AddInitCallback([&](winss::WaitMultiplexer&) {
-            StartClient();
+        multiplexer->AddInitCallback([this](winss::WaitMultiplexer&) {
+            this->StartClient();
         });
 
-        multiplexer->AddStopCallback([&](winss::WaitMultiplexer&) {
-            Stop();
+        multiplexer->AddStopCallback([this](winss::WaitMultiplexer&) {
+            this->Stop();
         });
     }
 
@@ -193,7 +193,7 @@ class PipeServer {
         return instances.size();
     }
 
-    void operator=(const PipeServer&) = delete;  /**< No copy. */
+    PipeServer& operator=(const PipeServer&) = delete;  /**< No copy. */
     PipeServer& operator=(PipeServer&&) = delete;  /**< No move. */
 
     /** 
@@ -280,7 +280,7 @@ class OutboundPipeServerTmpl : public PipeServer<TPipeInstance> {
     }
 
     /** No copy. */
-    void operator=(const OutboundPipeServerTmpl&) = delete;
+    OutboundPipeServerTmpl& operator=(const OutboundPipeServerTmpl&) = delete;
     /** No move. */
     OutboundPipeServerTmpl& operator=(OutboundPipeServerTmpl&&) = delete;
 };
@@ -376,7 +376,7 @@ class InboundPipeServerTmpl : public PipeServer<TPipeInstance> {
     }
 
     /** No copy. */
-    void operator=(const InboundPipeServerTmpl&) = delete;
+    InboundPipeServerTmpl& operator=(const InboundPipeServerTmpl&) = delete;
     /** No move. */
     InboundPipeServerTmpl& operator=(InboundPipeServerTmpl&&) = delete;
 };

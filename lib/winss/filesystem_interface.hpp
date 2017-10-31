@@ -151,7 +151,7 @@ class FilesystemInterface {
     static const FilesystemInterface& GetInstance();
 
     /** No copy. */
-    void operator=(const FilesystemInterface&) = delete;
+    FilesystemInterface& operator=(const FilesystemInterface&) = delete;
     /** No move. */
     FilesystemInterface& operator=(FilesystemInterface&&) = delete;
 };
