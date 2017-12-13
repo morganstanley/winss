@@ -6,11 +6,19 @@ Windows features. It's core function is to allow process supervision but it
 provides tools to supervise a collection of processes, handle logging, and
 also administeration.
 
+## Use Case
+While there are many use cases for process supervision, the primary use case is
+a lightweight replacement for the service manager built into Windows when 
+running processes in Windows Docker containers.  When WinSS is added as the CMD
+entrypoint for a Docker image, it enables a Docker container to run multiple
+services manage by WinSS.
+
 Using this framework it is simple to handle complex scenarios with little code
-such as  adding/removing services and starting/stopping services in a particular
-sequence. There is no requirement to change an application to handle events
-like traditional Windows services. *winss* can handle simple console applcations
-the way it should have been.
+such as adding/removing services, starting/stopping services in a particular
+sequence, automatic restarts of services when they fail, and having 
+STDOUT/STDERR logged to the local filesystem. There is no requirement to change
+an application to handle events like traditional Windows services. *winss* can
+handle simple console applcations the way it should have been.
 
 ## Getting Started
 
