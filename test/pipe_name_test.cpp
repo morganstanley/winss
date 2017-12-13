@@ -1,13 +1,43 @@
+/*
+* Copyright 2016-2017 Morgan Stanley
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include <string>
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "winss/winss.hpp"
 #include "winss/pipe_name.hpp"
+#include "mock_interface.hpp"
+#include "mock_filesystem_interface.hpp"
+
+using ::testing::_;
+using ::testing::NiceMock;
+using ::testing::Return;
+
+namespace fs = std::experimental::filesystem;
 
 namespace winss {
 class PipeNameTest : public testing::Test {
 };
 
 TEST_F(PipeNameTest, Name) {
+    MockInterface<winss::MockFilesystemInterface> file;
+
+    EXPECT_CALL(*file, CanonicalUncPath(_))
+        .WillRepeatedly(Return(fs::path(".")));
+
     winss::PipeName pipe_name1(".");
     winss::PipeName pipe_name2(".", "pipe_name2");
 
@@ -16,11 +46,16 @@ TEST_F(PipeNameTest, Name) {
     EXPECT_GT(name1.length(), (size_t) 7);
 
     const std::string& name2 = pipe_name2.Get();
-    EXPECT_EQ(0, name2.find("\\\\.\\pipe\\"));
+    EXPECT_EQ(0, name2.find(name1));
     EXPECT_GT(name2.find("_pipe_name2"), (size_t) 0);
 }
 
 TEST_F(PipeNameTest, Append) {
+    MockInterface<winss::MockFilesystemInterface> file;
+
+    EXPECT_CALL(*file, CanonicalUncPath(_))
+        .WillRepeatedly(Return("."));
+
     winss::PipeName pipe_name1(".");
 
     winss::PipeName pipe_name2 = pipe_name1.Append("test");
@@ -33,6 +68,11 @@ TEST_F(PipeNameTest, Append) {
 }
 
 TEST_F(PipeNameTest, CopyAndMove) {
+    MockInterface<winss::MockFilesystemInterface> file;
+
+    EXPECT_CALL(*file, CanonicalUncPath(_))
+        .WillRepeatedly(Return(fs::path(".")));
+
     winss::PipeName pipe_name1(".");
 
     winss::PipeName pipe_name2(pipe_name1);

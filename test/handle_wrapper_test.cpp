@@ -1,3 +1,19 @@
+/*
+* Copyright 2016-2017 Morgan Stanley
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include <vector>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -245,6 +261,145 @@ TEST_F(HandleWrapperTest, CloseOnAssignment) {
 
     HANDLE handle3 = reinterpret_cast<HANDLE>(30000);
     winss::HandleWrapper wrapper3(handle3);
+
+    EXPECT_CALL(*windows, CloseHandle(_)).Times(3);
+
+    wrapper1 = wrapper2;
+    wrapper1 = wrapper3;
+}
+
+TEST_F(HandleWrapperTest, Trusted) {
+    MockInterface<winss::MockWindowsInterface> windows;
+
+    EXPECT_CALL(*windows, CloseHandle(_)).Times(1);
+
+    HANDLE handle = reinterpret_cast<HANDLE>(10000);
+    winss::TrustedHandleWrapper trusted_wrapper(handle);
+
+    EXPECT_EQ(handle, trusted_wrapper.GetHandle());
+    // Ensure CloseHandle is not called on handle wrapper
+    winss::HandleWrapper wrapper = trusted_wrapper.GetHandleWrapper();
+
+    EXPECT_FALSE(wrapper.IsOwner());
+}
+
+TEST_F(HandleWrapperTest, TrustedCopy) {
+    MockInterface<winss::MockWindowsInterface> windows;
+
+    EXPECT_CALL(*windows, CloseHandle(_)).Times(1);
+
+    winss::TrustedHandleWrapper handle(reinterpret_cast<HANDLE>(10000), 1);
+    winss::TrustedHandleWrapper handle2;
+
+    EXPECT_FALSE(handle2.HasHandle());
+    handle2 = handle;
+
+    EXPECT_TRUE(handle.HasHandle());
+    EXPECT_TRUE(handle.IsOwner());
+    EXPECT_EQ(1, handle.GetDuplicateRights());
+    EXPECT_TRUE(handle2.HasHandle());
+    EXPECT_FALSE(handle2.IsOwner());
+    EXPECT_EQ(1, handle2.GetDuplicateRights());
+
+    winss::TrustedHandleWrapper handle3(handle2);
+    EXPECT_TRUE(handle3.HasHandle());
+    EXPECT_FALSE(handle3.IsOwner());
+    EXPECT_EQ(1, handle3.GetDuplicateRights());
+}
+
+TEST_F(HandleWrapperTest, TrustedMove) {
+    MockInterface<winss::MockWindowsInterface> windows;
+
+    EXPECT_CALL(*windows, CloseHandle(_)).Times(1);
+
+    winss::TrustedHandleWrapper handle(reinterpret_cast<HANDLE>(10000), 1);
+    winss::TrustedHandleWrapper handle2;
+
+    EXPECT_FALSE(handle2.HasHandle());
+    handle2 = std::move(handle);
+
+    EXPECT_TRUE(handle.HasHandle());
+    EXPECT_FALSE(handle.IsOwner());
+    EXPECT_EQ(1, handle.GetDuplicateRights());
+    EXPECT_TRUE(handle2.HasHandle());
+    EXPECT_TRUE(handle2.IsOwner());
+    EXPECT_EQ(1, handle2.GetDuplicateRights());
+
+    winss::TrustedHandleWrapper handle3(std::move(handle2));
+    EXPECT_TRUE(handle3.HasHandle());
+    EXPECT_TRUE(handle3.IsOwner());
+    EXPECT_EQ(1, handle3.GetDuplicateRights());
+}
+
+TEST_F(HandleWrapperTest, TrustedEquality) {
+    MockInterface<winss::MockWindowsInterface> windows;
+
+    HANDLE handle1 = reinterpret_cast<HANDLE>(10000);
+    winss::TrustedHandleWrapper wrapper1(handle1);
+    winss::TrustedHandleWrapper wrapper1copy = wrapper1;
+
+    HANDLE handle2 = reinterpret_cast<HANDLE>(20000);
+    winss::TrustedHandleWrapper wrapper2(handle2);
+
+    EXPECT_EQ(wrapper1, handle1);
+    EXPECT_EQ(handle1, wrapper1);
+    EXPECT_EQ(wrapper1copy, wrapper1);
+    EXPECT_EQ(wrapper1, wrapper1copy);
+    EXPECT_EQ(wrapper1copy, handle1);
+    EXPECT_EQ(handle1, wrapper1copy);
+
+    EXPECT_NE(wrapper1, handle2);
+    EXPECT_NE(handle2, wrapper1);
+    EXPECT_NE(wrapper1, wrapper2);
+    EXPECT_NE(wrapper2, wrapper1);
+}
+
+TEST_F(HandleWrapperTest, TrustedRelational) {
+    MockInterface<winss::MockWindowsInterface> windows;
+
+    HANDLE handle1 = reinterpret_cast<HANDLE>(10000);
+    winss::TrustedHandleWrapper wrapper1(handle1);
+
+    HANDLE handle2 = reinterpret_cast<HANDLE>(20000);
+    winss::TrustedHandleWrapper wrapper2(handle2);
+
+    EXPECT_GT(wrapper2, wrapper1);
+    EXPECT_GT(wrapper2, handle1);
+    EXPECT_GT(handle2, wrapper1);
+    EXPECT_GE(wrapper2, wrapper2);
+    EXPECT_GE(wrapper2, handle2);
+    EXPECT_GE(handle2, wrapper2);
+    EXPECT_LT(wrapper1, wrapper2);
+    EXPECT_LT(wrapper1, handle2);
+    EXPECT_LT(handle1, wrapper2);
+    EXPECT_LE(wrapper1, handle1);
+    EXPECT_LE(wrapper1, wrapper1);
+    EXPECT_LE(handle1, wrapper1);
+}
+
+TEST_F(HandleWrapperTest, TrustedSelfAssignment) {
+    MockInterface<winss::MockWindowsInterface> windows;
+
+    HANDLE handle1 = reinterpret_cast<HANDLE>(10000);
+    winss::TrustedHandleWrapper wrapper1(handle1);
+
+    wrapper1 = wrapper1;
+    wrapper1 = std::move(wrapper1);
+
+    EXPECT_TRUE(wrapper1.IsOwner());
+}
+
+TEST_F(HandleWrapperTest, TrustedCloseOnAssignment) {
+    MockInterface<winss::MockWindowsInterface> windows;
+
+    HANDLE handle1 = reinterpret_cast<HANDLE>(10000);
+    winss::TrustedHandleWrapper wrapper1(handle1);
+
+    HANDLE handle2 = reinterpret_cast<HANDLE>(20000);
+    winss::TrustedHandleWrapper wrapper2(handle2);
+
+    HANDLE handle3 = reinterpret_cast<HANDLE>(30000);
+    winss::TrustedHandleWrapper wrapper3(handle3);
 
     EXPECT_CALL(*windows, CloseHandle(_)).Times(3);
 

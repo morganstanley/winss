@@ -4,14 +4,20 @@ workspace "WindowsSupervisionSuite"
     language "C++"
     location "build"
     characterset "MBCS"
-    symbols "On"
-    flags { "NoPCH", "FatalWarnings" }
+    flags { "NoPCH", "FatalWarnings", "NoIncrementalLink" }
     defines {
       "VC_EXTRALEAN",
       "WINS32_LEAN_AND_MEAN",
       'PROJECT_NAME="$(ProjectName)"',
       'YEAR=' .. os.date("%Y")
     }
+
+    filter "configurations:Debug"
+      symbols "On"
+      symbolspath "$(OutDir)$(TargetName).pdb"
+    filter "configurations:Release"
+      optimize "On"
+    filter {}
 
     build_version = os.getenv("BUILD_VERSION")
     if not build_version then
@@ -20,22 +26,22 @@ workspace "WindowsSupervisionSuite"
 
     parts = string.explode(build_version, '[.-]+')
     if (table.getn(parts) >= 1) then
-      defines("VERSION_MAJOR=" .. parts[1] .. "")
+      defines("VERSION_MAJOR=" .. tonumber(parts[1]) .. "")
     end
     if (table.getn(parts) >= 2) then
-      defines("VERSION_MINOR=" .. parts[2] .. "")
+      defines("VERSION_MINOR=" .. tonumber(parts[2]) .. "")
     end
     if (table.getn(parts) >= 3) then
-      defines("VERSION_REVISION=" .. parts[3] .. "")
+      defines("VERSION_REVISION=" .. tonumber(parts[3]) .. "")
     end
     if (table.getn(parts) >= 4) then
-      defines("VERSION_BUILD=" .. parts[4] .. "")
+      defines("VERSION_BUILD=" .. tonumber(parts[4]) .. "")
     end
 
     git_commit = os.getenv("GIT_COMMIT")
     if git_commit then
       defines("GIT_COMMIT=\"" .. git_commit .. "\"")
-      defines("GIT_COMMIT_SHORT=\"" .. string.sub(git_commit, 1, 8) .. "\"")
+      defines("GIT_COMMIT_SHORT=\"" .. string.sub(git_commit, 1, 7) .. "\"")
     end
 
     project "winss"
@@ -64,6 +70,7 @@ workspace "WindowsSupervisionSuite"
     project "winss-svwait"
       kind "ConsoleApp"
       links { "winss" }
+      linkoptions { "setargv.obj" }
       includedirs { "lib" }
       files { "bin/winss-svwait.cpp", "bin/resource/*" }
 

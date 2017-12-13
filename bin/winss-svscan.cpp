@@ -1,10 +1,25 @@
+/*
+ * Copyright 2016-2017 Morgan Stanley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <filesystem>
 #include <iostream>
 #include <vector>
 #include "winss/winss.hpp"
 #include "optionparser/optionparser.hpp"
 #include "easylogging/easylogging++.hpp"
-#include "winss/ctrl_handler.hpp"
 #include "winss/filesystem_interface.hpp"
 #include "winss/not_owning_ptr.hpp"
 #include "winss/wait_multiplexer.hpp"
@@ -12,6 +27,7 @@
 #include "winss/svscan/controller.hpp"
 #include "winss/pipe_server.hpp"
 #include "winss/pipe_name.hpp"
+#include "winss/ctrl_handler.hpp"
 #include "resource/resource.h"
 
 INITIALIZE_EASYLOGGINGPP
@@ -21,6 +37,7 @@ namespace fs = std::experimental::filesystem;
 struct Settings {
     fs::path scan_dir;
     DWORD rescan = INFINITE;
+    bool signals = false;
     int verbose_level = 0;
 };
 
@@ -40,7 +57,7 @@ struct Arg : public option::Arg {
     }
 };
 
-enum OptionIndex { UNKNOWN, HELP, VERSION, VERBOSE, TIMEOUT };
+enum OptionIndex { UNKNOWN, HELP, VERSION, VERBOSE, TIMEOUT, SIGNALS };
 const option::Descriptor usage[] = {
     {
         UNKNOWN, 0, "", "", Arg::None,
@@ -52,7 +69,7 @@ const option::Descriptor usage[] = {
         "  --help  \tPrint usage and exit."
     },
     {
-        VERSION, 0, "", "version", option::Arg::None,
+        VERSION, 0, "", "version", Arg::None,
         "  --version  \tPrint the current version of winss and exit."
     },
     {
@@ -62,6 +79,10 @@ const option::Descriptor usage[] = {
     {
         TIMEOUT, 0, "t", "timeout", Arg::Required,
         "  -t<rescan>, \t--timeout=<rescan>  \tSets the rescan timeout."
+    },
+    {
+        SIGNALS, 0, "s", "signals", Arg::None,
+        "  -s, \t--signals  \tDivert signals."
     },
     { 0, 0, 0, 0, 0, 0 }
 };
@@ -112,16 +133,6 @@ Settings ParseArgs(int argc, char* argv[]) {
         option::Option& opt = buffer[i];
 
         switch (opt.index()) {
-        case TIMEOUT:
-            try {
-                settings.rescan = std::strtoul(opt.arg, nullptr, 10);
-            } catch (const std::exception&) {
-                std::cerr
-                    << "Option "
-                    << opt.name
-                    << " requires a numeric argument";
-            }
-            break;
         case VERBOSE:
             if (opt.arg == nullptr) {
                 settings.verbose_level = el::base::consts::kMaxVerboseLevel;
@@ -135,6 +146,19 @@ Settings ParseArgs(int argc, char* argv[]) {
                         << " requires a numeric argument";
                 }
             }
+            break;
+        case TIMEOUT:
+            try {
+                settings.rescan = std::strtoul(opt.arg, nullptr, 10);
+            } catch (const std::exception&) {
+                std::cerr
+                    << "Option "
+                    << opt.name
+                    << " requires a numeric argument";
+            }
+            break;
+        case SIGNALS:
+            settings.signals = true;
             break;
         }
     }
@@ -161,7 +185,6 @@ int main(int argc, char* argv[]) {
     ConfigureLogger(settings);
 
     winss::WaitMultiplexer multiplexer;
-    multiplexer.AddCloseEvent(winss::GetCloseEvent(), 0);
 
     winss::PipeName pipe_name(settings.scan_dir, winss::SvScan::kMutexName);
     winss::InboundPipeServer inbound({
@@ -170,7 +193,7 @@ int main(int argc, char* argv[]) {
     });
 
     winss::SvScan svscan(winss::NotOwned(&multiplexer), settings.scan_dir,
-        settings.rescan);
+        settings.rescan, settings.signals, winss::GetCloseEvent());
     winss::SvScanController controller(winss::NotOwned(&svscan),
         winss::NotOwned(&inbound));
     return multiplexer.Start();

@@ -1,10 +1,16 @@
 # Windows Supervision Suite (*winss*)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/3f2rxoh1sqfro4gk?svg=true)](https://ci.appveyor.com/project/keithhendry/winss-f91wg)
+[![codecov](https://codecov.io/gh/Morgan-Stanley/winss/branch/master/graph/badge.svg)](https://codecov.io/gh/Morgan-Stanley/winss)
+[![Documentation Status](https://readthedocs.org/projects/winss/badge/?version=latest)](http://winss.readthedocs.io/en/latest/?badge=latest)
+[![GitHub release](https://img.shields.io/github/release/Morgan-Stanley/winss.svg)](https://github.com/Morgan-Stanley/winss/releases/latest)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 *winss* is a small suite of tools for Windows that is designed to be as close to
 its counterpart [S6](http://skarnet.org/software/s6/) as possible using native
 Windows features. It's core function is to allow process supervision but it
 provides tools to supervise a collection of processes, handle logging, and
-also administeration.
+also administration.
 
 ## Use Case
 While there are many use cases for process supervision, the primary use case is
@@ -20,7 +26,11 @@ STDOUT/STDERR logged to the local filesystem. There is no requirement to change
 an application to handle events like traditional Windows services. *winss* can
 handle simple console applcations the way it should have been.
 
-## Getting Started
+## Documentation
+
+You will find documentation for using winss on the [Read the Docs](http://winss.readthedocs.io/en/latest/) site.
+
+## Getting Started for Developers
 
 These instructions will get you a copy of *winss* up and running on your local
 machine for development and testing purposes. See deployment for notes on
@@ -80,7 +90,7 @@ powershell .\tools\Run-Tests.ps1
 To check then use `cpplint`
 
 ```
-cpplint --extension=hpp,cpp --headers=hpp --filter=-legal/copyright,-build/c++11 <filename>
+cpplint --extension=hpp,cpp --headers=hpp --filter=-build/c++11 <filename>
 ```
 
 Or use the powershell script with an optional filename:
@@ -111,6 +121,8 @@ build to your local system and add the directory to the %PATH%.
   for parsing command line options.
 * [JSON for Modern C++](https://github.com/nlohmann/json) - for reading/writing
   JSON.
+* [HowardHinnant/date](https://github.com/HowardHinnant/date) - for
+  converting to and from ISO 8601 strings with millisecond precision.
 * [Google Test](https://github.com/google/googletest) - for testing/mocking.
 
 ## Contributing

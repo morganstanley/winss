@@ -1,3 +1,19 @@
+/*
+* Copyright 2016-2017 Morgan Stanley
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #ifndef TEST_MOCK_WAIT_MULTIPLEXER_HPP_
 #define TEST_MOCK_WAIT_MULTIPLEXER_HPP_
 
@@ -20,27 +36,27 @@ class MockWaitMultiplexer : public winss::WaitMultiplexer {
     std::vector<winss::Callback> mock_stop_callbacks;
 
     MockWaitMultiplexer() : winss::WaitMultiplexer::WaitMultiplexer() {
-        auto add_init = [&](winss::Callback callback) {
-            mock_init_callbacks.push_back(callback);
+        auto add_init = [this](winss::Callback callback) {
+            this->mock_init_callbacks.push_back(callback);
         };
         ON_CALL(*this, AddInitCallback(_)).WillByDefault(Invoke(add_init));
 
-        auto add_triggered = [&](const winss::HandleWrapper& handle,
+        auto add_triggered = [this](const winss::HandleWrapper& handle,
             winss::TriggeredCallback callback) {
-            mock_triggered_callbacks.push_back(callback);
+            this->mock_triggered_callbacks.push_back(callback);
         };
         ON_CALL(*this, AddTriggeredCallback(_, _))
             .WillByDefault(Invoke(add_triggered));
 
-        auto add_timeout = [&](DWORD timeout, winss::Callback callback,
+        auto add_timeout = [this](DWORD timeout, winss::Callback callback,
             std::string group) {
-            mock_timeout_callbacks.push_back(callback);
+            this->mock_timeout_callbacks.push_back(callback);
         };
         ON_CALL(*this, AddTimeoutCallback(_, _, _))
             .WillByDefault(Invoke(add_timeout));
 
-        auto add_stop = [&](winss::Callback callback) {
-            mock_stop_callbacks.push_back(callback);
+        auto add_stop = [this](winss::Callback callback) {
+            this->mock_stop_callbacks.push_back(callback);
         };
         ON_CALL(*this, AddStopCallback(_)).WillByDefault(Invoke(add_stop));
     }

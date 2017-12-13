@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016-2017 Morgan Stanley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <filesystem>
 #include <iostream>
 #include <vector>
@@ -21,6 +37,8 @@
 INITIALIZE_EASYLOGGINGPP
 
 namespace fs = std::experimental::filesystem;
+
+static const int kTimeoutExitCode = 99;
 
 struct Settings {
     std::vector<fs::path> service_dirs;
@@ -120,8 +138,15 @@ Settings ParseArgs(int argc, char* argv[]) {
 
     Settings settings{};
     for (int i = 0; i < parse.nonOptionsCount(); i++) {
-        settings.service_dirs.push_back(
-            std::move(FILESYSTEM.Absolute(parse.nonOption(i))));
+        std::string name(parse.nonOption(i));
+
+        if (name.empty() || name.front() == L'.'
+            || !FILESYSTEM.DirectoryExists(name)) {
+            VLOG(4) << "Skipping directory " << name;
+        } else {
+            settings.service_dirs.push_back(
+                std::move(FILESYSTEM.Absolute(name)));
+        }
     }
 
     for (int i = 0; i < parse.optionsCount(); ++i) {
@@ -210,7 +235,7 @@ int main(int argc, char* argv[]) {
     multiplexer.AddCloseEvent(winss::GetCloseEvent(), 0);
 
     winss::Control control(winss::NotOwned(&multiplexer),
-        settings.timeout, settings.wait_all);
+        settings.timeout, kTimeoutExitCode, settings.wait_all);
 
     std::vector<WaitItem> wait_items;
 

@@ -1,4 +1,21 @@
+/*
+ * Copyright 2016-2017 Morgan Stanley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "filesystem_interface.hpp"
+#include <windows.h>
 #include <filesystem>
 #include <string>
 #include <fstream>
@@ -17,13 +34,13 @@ std::string winss::FilesystemInterface::Read(const fs::path& path) const {
         VLOG(5) << "Reading file " << path;
 
         std::ifstream infile{ path };
-        std::string cmd{
+        std::string value{
             std::istreambuf_iterator<char>(infile),
             std::istreambuf_iterator<char>()
         };
         infile.close();
 
-        return cmd;
+        return value;
     } catch (const std::exception& e) {
         VLOG(1) << "Failed to read file " << path << ": " << e.what();
     }
@@ -136,6 +153,47 @@ fs::path winss::FilesystemInterface::Absolute(const fs::path& path) const {
         VLOG(1) << "Could not get canonical path " << path << ": " << e.what();
         return path;
     }
+}
+
+fs::path winss::FilesystemInterface::CanonicalUncPath(
+    const fs::path& path) const {
+    auto path_str = path.string();
+    HANDLE file = CreateFile(
+        path_str.data(),
+        GENERIC_READ,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL,
+        OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS,
+        NULL);
+
+    if (file == INVALID_HANDLE_VALUE) {
+        CloseHandle(file);
+        return Absolute(path);
+    }
+
+    std::vector<char> pathbuf;
+    DWORD bufsize = static_cast<DWORD>(path_str.size() * 2);
+
+    while (true) {
+        pathbuf.resize(bufsize + 1);
+        DWORD len = GetFinalPathNameByHandle(file, pathbuf.data(), bufsize,
+            VOLUME_NAME_DOS);
+
+        if (len == 0) {
+            CloseHandle(file);
+            return Absolute(path);
+        }
+
+        if (len <= bufsize)
+            break;
+
+        bufsize = len;
+    }
+
+    CloseHandle(file);
+    fs::path unc_path(pathbuf.begin(), pathbuf.end());
+    return unc_path;
 }
 
 std::vector<fs::path> winss::FilesystemInterface::GetDirectories(

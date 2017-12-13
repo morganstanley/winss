@@ -1,3 +1,19 @@
+/*
+* Copyright 2016-2017 Morgan Stanley
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include <thread>
 #include <functional>
 #include "gtest/gtest.h"
@@ -20,6 +36,18 @@ TEST_F(EventWrapperTest, Set) {
     EXPECT_FALSE(e.IsSet());
     EXPECT_TRUE(e.Set());
     EXPECT_TRUE(e.IsSet());
+    EXPECT_TRUE(e.Set());
+    EXPECT_TRUE(e.IsSet());
+}
+
+TEST_F(EventWrapperTest, Reset) {
+    winss::EventWrapper e;
+
+    EXPECT_FALSE(e.IsSet());
+    EXPECT_TRUE(e.Set());
+    EXPECT_TRUE(e.IsSet());
+    EXPECT_TRUE(e.Reset());
+    EXPECT_FALSE(e.IsSet());
     EXPECT_TRUE(e.Set());
     EXPECT_TRUE(e.IsSet());
 }
@@ -77,5 +105,57 @@ TEST_F(EventWrapperTest, DuplicateSet) {
     EXPECT_EQ(windows->WaitForSingleObject(h, 0), WAIT_OBJECT_0);
 
     windows->CloseHandle(h);
+}
+
+TEST_F(EventWrapperTest, Copy) {
+    MockInterface<winss::MockWindowsInterface> windows;
+    windows->SetupDefaults();
+
+    EXPECT_CALL(*windows, CloseHandle(_)).Times(2);
+
+    winss::EventWrapper e1;
+    winss::EventWrapper e2;
+
+    EXPECT_NE(e1.GetHandle(), e2.GetHandle());
+
+    e1 = e2;
+
+    EXPECT_EQ(e1.GetHandle(), e2.GetHandle());
+
+    winss::EventWrapper e3(e2);
+
+    EXPECT_EQ(e1.GetHandle(), e3.GetHandle());
+}
+
+TEST_F(EventWrapperTest, Move) {
+    MockInterface<winss::MockWindowsInterface> windows;
+    windows->SetupDefaults();
+
+    EXPECT_CALL(*windows, CloseHandle(_)).Times(2);
+
+    winss::EventWrapper e1;
+    winss::EventWrapper e2;
+
+    EXPECT_NE(e1.GetHandle(), e2.GetHandle());
+
+    e1 = std::move(e2);
+
+    EXPECT_EQ(e1.GetHandle(), e2.GetHandle());
+
+    winss::EventWrapper e3(std::move(e2));
+
+    EXPECT_EQ(e1.GetHandle(), e3.GetHandle());
+}
+
+TEST_F(EventWrapperTest, SelfAssignment) {
+    MockInterface<winss::MockWindowsInterface> windows;
+    windows->SetupDefaults();
+
+    EXPECT_CALL(*windows, CloseHandle(_)).Times(1);
+
+    winss::EventWrapper event1;
+
+    event1 = event1;
+    event1 = std::move(event1);
 }
 }  // namespace winss

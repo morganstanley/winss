@@ -36,6 +36,7 @@ install:
 - 7z x premake.zip
 - cinst opencppcoverage
 - pip install cpplint
+- pip install codecov
 
 before_build:
 # Set env vars expected in premake
@@ -59,6 +60,8 @@ test_script:
       {
          $wc = New-Object 'System.Net.WebClient'
          $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\build\testresults.xml))
+
+         & codecov -X gcov -f ".\build\coverage.xml"
       }
 
       & .\tools\Run-Lint.ps1
@@ -66,27 +69,27 @@ test_script:
     }
 
 artifacts:
-- path: build\bin\x64\Debug
-  name: debug
-  type: zip
-- path: build\bin\x64\Release
-  name: release
+- path: build\bin\x64\$(configuration)
+  name: winss
   type: zip
 - path: build\testresults.xml
   name: testresults
 - path: build\coverage.xml
   name: coverage
-- path: build\lint.txt
-  name: lint
+- path: build\cpplint.out
+  name: cpplint
 
 deploy:
+  tag: $(appveyor_repo_tag_name)
+  release: winss $(appveyor_build_version)
   provider: GitHub
   auth_token:
     secure: mSvsAjNV2gCX/XNeDFuwXYc6w7BIZo4eY6sjS9hZnlGnpYPproDWjzirT5z86znF
-  artifact: release
-  draft: false
+  artifact: winss
+  draft: true
   prerelease: false
   on:
-    branch: /^ms\\/
+    appveyor_repo_name: Morgan-Stanley/winss
     appveyor_repo_tag: true
-    Configuration: Release
+    appveyor_repo_tag_name: /^ms/
+    configuration: Release

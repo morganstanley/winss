@@ -1,3 +1,19 @@
+/*
+* Copyright 2016-2017 Morgan Stanley
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #ifndef TEST_MOCK_PIPE_INSTANCE_HPP_
 #define TEST_MOCK_PIPE_INSTANCE_HPP_
 
@@ -50,7 +66,7 @@ class MockPipeInstance : public virtual winss::PipeInstance {
     MOCK_METHOD0(DisconnectNamedPipe, void());
     MOCK_METHOD0(Close, bool());
 
-    void operator=(const MockPipeInstance&) = delete;
+    MockPipeInstance& operator=(const MockPipeInstance&) = delete;
 
     MockPipeInstance& operator=(MockPipeInstance&& instance) {
         winss::PipeInstance::operator=(std::move(instance));
@@ -78,7 +94,7 @@ class NiceMockPipeInstance : public NiceMock<MockPipeInstance> {
              winss::HandleWrapper(handle, false)));
      }
 
-     void operator=(const NiceMockPipeInstance&) = delete;
+     NiceMockPipeInstance& operator=(const NiceMockPipeInstance&) = delete;
 
      NiceMockPipeInstance& operator=(NiceMockPipeInstance&& instance) {
          winss::PipeInstance::operator=(std::move(instance));
@@ -135,7 +151,8 @@ class MockOutboundPipeInstance : public virtual winss::OutboundPipeInstance {
     MOCK_METHOD0(Write, bool());
     MOCK_METHOD0(Read, bool());
 
-    void operator=(const MockOutboundPipeInstance&) = delete;
+    MockOutboundPipeInstance& operator=(
+        const MockOutboundPipeInstance&) = delete;
 
     MockOutboundPipeInstance& operator=(MockOutboundPipeInstance&& instance) {
         winss::PipeInstance::operator=(std::move(instance));
@@ -165,7 +182,8 @@ class NiceMockOutboundPipeInstance :
             winss::HandleWrapper(handle, false)));
     }
 
-    void operator=(const NiceMockOutboundPipeInstance&) = delete;
+    NiceMockOutboundPipeInstance& operator=(
+        const NiceMockOutboundPipeInstance&) = delete;
 
     NiceMockOutboundPipeInstance& operator=(
         NiceMockOutboundPipeInstance&& instance) {
@@ -218,7 +236,8 @@ class MockInboundPipeInstance : public virtual winss::InboundPipeInstance {
     MOCK_METHOD0(Read, bool());
     MOCK_METHOD0(SwapBuffer, std::vector<char>());
 
-    void operator=(const MockInboundPipeInstance&) = delete;
+    MockInboundPipeInstance& operator=(
+        const MockInboundPipeInstance&) = delete;
 
     MockInboundPipeInstance& operator=(MockInboundPipeInstance&& instance) {
         winss::PipeInstance::operator=(std::move(instance));
@@ -248,7 +267,8 @@ class NiceMockInboundPipeInstance :
             winss::HandleWrapper(handle, false)));
     }
 
-    void operator=(const NiceMockInboundPipeInstance&) = delete;
+    NiceMockInboundPipeInstance& operator=(
+        const NiceMockInboundPipeInstance&) = delete;
 
     NiceMockInboundPipeInstance& operator=(
         NiceMockInboundPipeInstance&& instance) {

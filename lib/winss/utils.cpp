@@ -1,5 +1,23 @@
+/*
+ * Copyright 2016-2017 Morgan Stanley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#define NOMINMAX
 #include "utils.hpp"
 #include <windows.h>
+#include <algorithm>
 #include <sstream>
 #include <iomanip>
 #include <memory>
@@ -7,6 +25,7 @@
 #include <chrono>
 #include <string>
 #include <map>
+#include "date/date.hpp"
 #include "windows_interface.hpp"
 
 std::string winss::Utils::ExpandEnvironmentVariables(
@@ -49,21 +68,50 @@ winss::env_t winss::Utils::GetEnvironmentVariables() {
     return env;
 }
 
+std::vector<char> winss::Utils::GetEnvironmentString(
+    const winss::env_t& env) {
+    std::vector<char> env_string;
+
+    for (auto& kv : env) {
+        std::copy(kv.first.begin(), kv.first.end(),
+            std::back_inserter(env_string));
+        env_string.push_back('=');
+        std::copy(kv.second.begin(), kv.second.end(),
+            std::back_inserter(env_string));
+        env_string.push_back('\0');
+    }
+    env_string.push_back('\0');
+
+    return env_string;
+}
+
+std::vector<std::string> winss::Utils::SplitString(
+    const std::string& input) {
+    std::vector<std::string> output;
+
+    std::stringstream ss(input);
+    std::string to;
+
+    while (std::getline(ss, to)) {
+        if (!to.empty()) {
+            output.push_back(to);
+        }
+    }
+
+    return output;
+}
+
 std::string winss::Utils::ConvertToISOString(
     const std::chrono::system_clock::time_point& time_point) {
-    std::time_t time = std::chrono::system_clock::to_time_t(time_point);
-    std::tm tm;
-    std::stringstream ss;
-    if (!gmtime_s(&tm, &time)) {
-        ss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S");
-    }
-    return ss.str();
+    return date::format("%F %T",
+        date::floor<std::chrono::milliseconds>(time_point));
 }
 
 std::chrono::system_clock::time_point winss::Utils::ConvertFromISOString(
     const std::string& iso_string) {
-    std::tm tm = {};
-    std::stringstream ss(iso_string);
-    ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
-    return std::chrono::system_clock::from_time_t(_mkgmtime(&tm));
+    std::istringstream ss;
+    ss.str(iso_string);
+    std::chrono::system_clock::time_point time_point;
+    ss >> date::parse("%F %T", time_point);
+    return time_point;
 }

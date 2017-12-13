@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016-2017 Morgan Stanley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "control.hpp"
 #include <vector>
 #include <set>
@@ -16,14 +32,16 @@ const char winss::Control::kTimeoutGroup[] = "control";
 
 winss::Control::Control(
     winss::NotOwningPtr<winss::WaitMultiplexer> multiplexer,
-    DWORD timeout, bool finish_all) : multiplexer(multiplexer),
-    timeout(timeout), finish_all(finish_all) {
+    DWORD timeout, int timeout_exit_code, bool finish_all) :
+    multiplexer(multiplexer), timeout(timeout),
+    timeout_exit_code(timeout_exit_code), finish_all(finish_all) {
     if (timeout != INFINITE) {
-        multiplexer->AddInitCallback([timeout](winss::WaitMultiplexer& m) {
-            m.AddTimeoutCallback(timeout, [](
+        multiplexer->AddInitCallback([timeout, timeout_exit_code](
+            winss::WaitMultiplexer& m) {
+            m.AddTimeoutCallback(timeout, [timeout_exit_code](
                 winss::WaitMultiplexer& m) {
                 VLOG(3) << "Control timeout!";
-                m.Stop(winss::Control::kTimeoutExitCode);
+                m.Stop(timeout_exit_code);
             }, kTimeoutGroup);
         });
 
@@ -162,8 +180,8 @@ bool winss::InboundControlItem::Connected() {
     return true;
 }
 
-bool winss::InboundControlItem::Recieved(const std::vector<char>& message) {
-    if (!listener->HandleRecieved(message)) {
+bool winss::InboundControlItem::Received(const std::vector<char>& message) {
+    if (!listener->HandleReceived(message)) {
         complete = true;
         client->Stop();
     }

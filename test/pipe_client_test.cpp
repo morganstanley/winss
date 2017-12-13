@@ -1,3 +1,19 @@
+/*
+* Copyright 2016-2017 Morgan Stanley
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 #include <vector>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -44,7 +60,7 @@ class MockedInboundPipeClient : public winss::InboundPipeClientTmpl<
 TEST_F(PipeClientTest, OuboundConnect) {
     MockInterface<winss::MockWindowsInterface> windows;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    NiceMock<winss::MockPipeClientSendRecieveListener> listener;
+    NiceMock<winss::MockPipeClientSendReceiveListener> listener;
 
     EXPECT_CALL(listener, Connected()).WillOnce(Return(true));
 
@@ -64,7 +80,7 @@ TEST_F(PipeClientTest, OuboundConnect) {
 TEST_F(PipeClientTest, OuboundConnectFailed) {
     MockInterface<winss::MockWindowsInterface> windows;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    NiceMock<winss::MockPipeClientSendRecieveListener> listener;
+    NiceMock<winss::MockPipeClientSendReceiveListener> listener;
 
     EXPECT_CALL(listener, Disconnected()).WillOnce(Return(true));
 
@@ -83,7 +99,7 @@ TEST_F(PipeClientTest, OuboundConnectFailed) {
 TEST_F(PipeClientTest, OuboundRemove) {
     MockInterface<winss::MockWindowsInterface> windows;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    NiceMock<winss::MockPipeClientSendRecieveListener> listener;
+    NiceMock<winss::MockPipeClientSendReceiveListener> listener;
 
     EXPECT_CALL(listener, Connected()).WillOnce(Return(true));
     EXPECT_CALL(listener, Disconnected()).WillOnce(Return(true));
@@ -114,7 +130,7 @@ TEST_F(PipeClientTest, OuboundRemove) {
 TEST_F(PipeClientTest, OuboundStop) {
     MockInterface<winss::MockWindowsInterface> windows;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    NiceMock<winss::MockPipeClientSendRecieveListener> listener;
+    NiceMock<winss::MockPipeClientSendReceiveListener> listener;
 
     EXPECT_CALL(listener, Connected()).WillOnce(Return(true));
     EXPECT_CALL(listener, Disconnected()).Times(0);
@@ -141,7 +157,7 @@ TEST_F(PipeClientTest, OuboundStop) {
 TEST_F(PipeClientTest, OuboundSend) {
     MockInterface<winss::MockWindowsInterface> windows;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    NiceMock<winss::MockPipeClientSendRecieveListener> listener;
+    NiceMock<winss::MockPipeClientSendReceiveListener> listener;
 
     EXPECT_CALL(listener, Connected()).WillOnce(Return(true));
     EXPECT_CALL(listener, WriteComplete()).WillOnce(Return(false));
@@ -188,9 +204,9 @@ TEST_F(PipeClientTest, OuboundSend) {
 TEST_F(PipeClientTest, InboundRead) {
     MockInterface<winss::MockWindowsInterface> windows;
     NiceMock<winss::MockWaitMultiplexer> multiplexer;
-    NiceMock<winss::MockPipeClientSendRecieveListener> listener;
+    NiceMock<winss::MockPipeClientSendReceiveListener> listener;
 
-    EXPECT_CALL(listener, Recieved(_)).WillOnce(Return(false));
+    EXPECT_CALL(listener, Received(_)).WillOnce(Return(false));
 
     winss::MockPipeName pipe_name("test");
     MockedInboundPipeClient client({
