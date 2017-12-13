@@ -18,7 +18,11 @@ sequence. There is no requirement to change an application to handle events
 like traditional Windows services. *winss* can handle simple console applications
 the way it should have been.
 
-## Getting Started
+## Documentation
+
+You will find documentation for using winss on the [Read the Docs](http://winss.readthedocs.io/en/latest/) site.
+
+## Getting Started for Developers
 
 These instructions will get you a copy of *winss* up and running on your local
 machine for development and testing purposes. See deployment for notes on
